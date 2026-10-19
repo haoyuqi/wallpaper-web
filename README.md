@@ -16,10 +16,16 @@ To use your own API, copy `.env.example` to `.env.local` and set
 `API_PROXY_TARGET` to its origin. Requests omit credentials.
 
 ```sh
+npm test
+npm run test:unit
+npm run test:coverage
+npm run test:e2e
 npm run check
 npm run build
 npm run preview
 ```
+
+For end-to-end tests in a fresh environment, install the Chromium browser binary once with `npx playwright install chromium`.
 
 The production artifact is `dist/`, a static SPA. The development API proxy does
 not ship with it: configure a public VITE_API_BASE_URL at build time or a
@@ -40,8 +46,11 @@ Read AGENTS.md and docs/architecture.md before changes. Keep changes scoped and
 preserve unrelated work. Use Node.js 26 or later and the npm version declared in `package.json`;
 all build tools are project-local. Never commit .env or credentials.
 
-This repository has no automated test suite. Validate changes with
-format/lint, type checking, production builds and focused browser checks. Review
+Validate changes with automated tests (`npm test`), format/lint and type checking
+(`npm run check`), production builds (`npm run build`) and focused browser checks.
+Unit/component tests run in `happy-dom` via `vp test`, and end-to-end tests run in
+headless Chromium via Playwright against the production preview build with mocked
+network boundaries (no local backend or live external service required). Review
 actual files, including untracked source, for correctness, readability, architecture,
 security and performance. Report verification commands and results; do not claim
 CI or broad browser/accessibility compliance without evidence.

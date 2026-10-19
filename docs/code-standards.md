@@ -10,7 +10,9 @@
 - Vue text interpolation is mandatory for metadata. External links need HTTPS
   validation and noopener/noreferrer; credentials never enter VITE_* variables.
 - Verify user-visible behavior, cancellation/error paths and boundary conditions
-  with focused browser checks. There is no automated test suite.
-  Do not replace real integration evidence with fixture-only screenshots.
+  across unit/component tests (`tests/unit/`), Playwright E2E flows (`tests/e2e/`)
+  and focused browser checks. Keep automated tests self-contained without live
+  external network or demo data in production source. Do not replace real
+  integration evidence with fixture-only screenshots.
 - Format with project-local Vite+; retain vue-tsc for .vue template type checking.
   Use the project-local commands declared in package.json.
