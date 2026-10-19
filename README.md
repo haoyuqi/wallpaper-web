@@ -1,5 +1,9 @@
 # Wallpaper Web
 
+[![CI](https://github.com/haoyuqi/wallpaper-web/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/haoyuqi/wallpaper-web/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/haoyuqi/wallpaper-web)](https://github.com/haoyuqi/wallpaper-web/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Bing wallpaper archive frontend. Vue 3, TypeScript, Vue Router and native CSS,
 built with project-local Vite+. The interface uses a cinema layout, warm linen palette and LXGW
 WenKai font. The app uses real v1 API metadata; there is no production mock mode.
@@ -54,6 +58,12 @@ network boundaries (no local backend or live external service required). Review
 actual files, including untracked source, for correctness, readability, architecture,
 security and performance. Report verification commands and results; do not claim
 CI or broad browser/accessibility compliance without evidence.
+
+## Continuous integration
+
+[GitHub Actions](.github/workflows/ci.yml) runs formatting, lint, type checks,
+unit/component tests, production build, Chromium E2E tests and a dependency audit.
+See the [CI guide](docs/ci.md) for triggers, reports and failure handling.
 
 ## Browser checks
 
