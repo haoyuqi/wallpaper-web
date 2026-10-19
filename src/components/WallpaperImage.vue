@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { useLocalization } from "../i18n";
 import { nextTick, onMounted, ref, watch } from "vue";
+const { t } = useLocalization();
 const props = withDefaults(
   defineProps<{ src: string; alt: string; kind?: "hero" | "card" | "viewer" }>(),
   { kind: "card" },
@@ -48,10 +50,10 @@ onMounted(cached);
       <p>
         {{
           state === "loading"
-            ? "正在加载图片…"
+            ? t("image.loading")
             : kind === "viewer"
-              ? "图片暂时无法加载"
-              : "预览暂不可用"
+              ? t("image.unavailable")
+              : t("image.previewUnavailable")
         }}
       </p>
       <button
@@ -60,7 +62,7 @@ onMounted(cached);
         type="button"
         @click="retry"
       >
-        重新加载
+        {{ t("image.retry") }}
       </button>
     </div>
   </div>

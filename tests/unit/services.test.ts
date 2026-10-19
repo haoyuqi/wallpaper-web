@@ -132,7 +132,7 @@ describe("HTTPS URL validation and response normalization", () => {
       {
         id: "bing-2026-10-17",
         date: "2026-10-17",
-        title: "2026.10.17 壁纸",
+        title: "",
         copyright: null,
         copyrightLink: null,
         imageUrl: "https://www.bing.com/th?id=OHR.AutumnValley_1920x1080.jpg",

@@ -1,16 +1,17 @@
 <script setup lang="ts">
+import { useLocalization } from "../i18n";
 import { onMounted, onUnmounted, ref } from "vue";
 import type { Wallpaper } from "../services/wallpapers";
-import { displayDate } from "../services/dates";
 import { fetchDownload } from "../services/download";
 import WallpaperImage from "./WallpaperImage.vue";
+const { t, formatDate, wallpaperTitle } = useLocalization();
 const props = defineProps<{ wallpaper: Wallpaper; trigger: HTMLElement | null }>();
 const emit = defineEmits<{ close: [] }>();
 const dialog = ref<HTMLDialogElement>();
 const closeButton = ref<HTMLButtonElement>();
 const downloading = ref(false);
 const downloadError = ref(false);
-const message = ref("");
+const message = ref<"" | "viewer.handedOff" | "viewer.failed">("");
 const saved = {
   x: window.scrollX,
   y: window.scrollY,
@@ -70,12 +71,12 @@ async function download() {
     document.body.append(link);
     link.click();
     link.remove();
-    message.value = "已交给浏览器保存";
+    message.value = "viewer.handedOff";
     revokeTimer = setTimeout(revoke, 60000);
   } catch {
     if (!disposed) {
       downloadError.value = true;
-      message.value = "下载未能开始，请重试或查看原图。";
+      message.value = "viewer.failed";
     }
   } finally {
     clearTimeout(timer);
@@ -120,23 +121,30 @@ onUnmounted(() => {
     @keydown="keydown"
   >
     <div class="detail-top">
-      <span>查看壁纸</span
-      ><button ref="closeButton" type="button" aria-label="关闭壁纸" @click="emit('close')">
+      <span>{{ t("image.view") }}</span
+      ><button
+        ref="closeButton"
+        type="button"
+        :aria-label="t('viewer.close')"
+        @click="emit('close')"
+      >
         <span aria-hidden="true">×</span>
       </button>
     </div>
     <div class="detail-body">
       <div class="detail-stage">
-        <WallpaperImage :src="wallpaper.imageUrl" :alt="wallpaper.title" kind="viewer" />
+        <WallpaperImage :src="wallpaper.imageUrl" :alt="wallpaperTitle(wallpaper)" kind="viewer" />
       </div>
       <div class="detail-info">
         <div>
-          <span class="eyebrow">{{ displayDate(wallpaper.date, " / ") }}</span>
-          <h2 id="detail-title">{{ wallpaper.title }}</h2>
+          <span class="eyebrow">{{ formatDate(wallpaper.date) }}</span>
+          <h2 id="detail-title">{{ wallpaperTitle(wallpaper) }}</h2>
         </div>
         <div class="download-area">
           <div class="detail-actions">
-            <a :href="wallpaper.imageUrl" target="_blank" rel="noopener noreferrer">查看原图 ↗</a>
+            <a :href="wallpaper.imageUrl" target="_blank" rel="noopener noreferrer">{{
+              t("viewer.original")
+            }}</a>
             <button
               data-download
               type="button"
@@ -147,23 +155,23 @@ onUnmounted(() => {
             >
               {{
                 !wallpaper.downloadUrl
-                  ? "下载暂不可用"
+                  ? t("viewer.unavailable")
                   : downloading
-                    ? "正在准备…"
+                    ? t("viewer.preparing")
                     : downloadError
-                      ? "重试下载 ↓"
-                      : "下载壁纸 ↓"
+                      ? t("viewer.retry")
+                      : t("viewer.download")
               }}
             </button>
           </div>
-          <p v-if="message" class="download-message" role="status">{{ message }}</p>
+          <p v-if="message" class="download-message" role="status">{{ t(message) }}</p>
           <a
             v-if="downloadError && wallpaper.downloadUrl"
             class="browser-download"
             :href="wallpaper.downloadUrl"
             target="_blank"
             rel="noopener noreferrer"
-            >通过浏览器打开下载链接 ↗</a
+            >{{ t("viewer.browser") }}</a
           >
         </div>
       </div>
@@ -175,8 +183,8 @@ onUnmounted(() => {
         target="_blank"
         rel="noopener noreferrer"
         >{{ wallpaper.copyright }} ↗</a
-      ><span v-else>{{ wallpaper.copyright || "图片版权归原权利人所有。" }}</span
-      ><span class="keyboard-tip">Esc 关闭</span>
+      ><span v-else>{{ wallpaper.copyright || t("viewer.copyright") }}</span
+      ><span class="keyboard-tip">{{ t("viewer.escape") }}</span>
     </div>
   </dialog>
 </template>

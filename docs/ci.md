@@ -37,6 +37,12 @@ the relevant artifact and reproduce with the command above. For Playwright HTML
 reports, extract the artifact and run
 `npx --no-install playwright show-report /path/to/playwright-report`.
 
+The coverage job enforces 100% statements, branches, functions and lines for
+`src/i18n/**` and `src/components/LanguageSelect.vue`. Dictionary data is checked
+for matching keys and interpolation parameters by the unit tests. HTML and JSON
+coverage reports are included in the coverage artifact. See [interface languages](i18n.md)
+for the locale-specific test scenarios.
+
 High and critical dependency advisories fail the audit; lower severities remain
 in the report. Audit service or network errors also fail the job. The audit reads
 the committed lockfile without installing project dependencies or changing it.

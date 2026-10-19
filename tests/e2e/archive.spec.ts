@@ -73,6 +73,7 @@ async function mockWallpaperNetwork(page: Page) {
 }
 
 test.describe("Wallpaper archive E2E flows", () => {
+  test.use({ locale: "zh-CN" });
   test("renders initial 6 cards, appends batches with keyboard focus and reaches range end", async ({
     page,
   }) => {
@@ -111,7 +112,7 @@ test.describe("Wallpaper archive E2E flows", () => {
     await dateInput.dispatchEvent("change");
 
     await expect(page).toHaveURL(/\/\?date=2026-10-17$/);
-    await expect(page.locator(".archive-scope")).toHaveText("2026.10.17");
+    await expect(page.locator(".archive-scope")).toHaveText("2026年10月17日");
     await expect(page.locator(".wallpaper-card")).toHaveCount(1);
     await expect(page.locator("#cover-title")).toHaveText("Alpine Ridge 1");
 
@@ -256,5 +257,132 @@ test.describe("Wallpaper archive E2E flows", () => {
       .locator(".detail-body")
       .evaluate((el) => getComputedStyle(el).flexDirection);
     expect(flexDirection).toBe("row");
+  });
+});
+
+test.describe("Language preferences and switching", () => {
+  test.use({ locale: "en-US", timezoneId: "America/Los_Angeles" });
+
+  test("detects English, switches without requests or resets, and persists a manual preference", async ({
+    page,
+  }) => {
+    await mockWallpaperNetwork(page);
+    let requests = 0;
+    page.on("request", (request) => {
+      if (request.url().includes("/api/v1/wallpapers")) requests++;
+    });
+    await page.goto("/");
+    await expect(page.locator(".wallpaper-card")).toHaveCount(6);
+    await expect(page.locator("#cover-title")).toHaveText("Alpine Ridge 1");
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page).toHaveTitle("Wallpapers · Bing Image Archive");
+    const language = page.getByRole("combobox", { name: "Language", exact: true });
+    await expect(language.locator("option")).toHaveCount(2);
+    await language.focus();
+    await expect(language).toBeFocused();
+    await page.getByRole("button", { name: "Load more", exact: true }).click();
+    await expect(page.locator(".wallpaper-card")).toHaveCount(12);
+    await expect(page.getByRole("status").filter({ hasText: "Added 6 wallpapers." })).toHaveCount(
+      1,
+    );
+    const initialRequests = requests;
+    await language.selectOption("zh-CN");
+    await expect(page.locator("#collection-title")).toHaveText("全部壁纸");
+    await expect(page.locator(".wallpaper-card")).toHaveCount(12);
+    await expect(page.getByRole("status").filter({ hasText: "已追加 6 张壁纸。" })).toHaveCount(1);
+    expect(requests).toBe(initialRequests);
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
+    await expect(page.getByRole("combobox", { name: "语言", exact: true })).toHaveValue("zh-CN");
+    await page.getByRole("combobox").selectOption("en");
+    await page.locator("#date-filter").fill("2026-10-17");
+    await page.locator("#date-filter").dispatchEvent("change");
+    await expect(page.locator(".archive-scope")).toHaveText("Oct 17, 2026");
+    await expect(page.locator(".wallpaper-card")).toHaveCount(1);
+    const filteredRequests = requests;
+    await page.getByRole("combobox").selectOption("zh-CN");
+    await expect(page.locator(".archive-scope")).toHaveText("2026年10月17日");
+    await expect(page).toHaveURL(/\?date=2026-10-17$/);
+    expect(requests).toBe(filteredRequests);
+    await expect(page.locator(".wallpaper-card h3")).toHaveText("Alpine Ridge 1");
+  });
+
+  test("keeps an open viewer and download status translated without changing source content", async ({
+    page,
+  }) => {
+    await mockWallpaperNetwork(page);
+    await page.goto("/");
+    await page.locator(".hero-image-button").click();
+    await expect(page.getByRole("button", { name: "Close wallpaper", exact: true })).toBeFocused();
+    const downloadPromise = page.waitForEvent("download");
+    await page.locator("[data-download]").click();
+    await downloadPromise;
+    await expect(page.locator(".download-message")).toHaveText("Handed to your browser to save");
+    await page.locator("[data-download]").focus();
+    // A native modal makes the header inert; exercise a programmatic locale change while it is open.
+    await page.locator(".language-select select").evaluate((select: HTMLSelectElement) => {
+      select.value = "zh-CN";
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await expect(page.locator("dialog[open]")).toBeVisible();
+    await expect(page.locator(".download-message")).toHaveText("已交给浏览器保存");
+    await expect(page.locator("#detail-title")).toHaveText("Alpine Ridge 1");
+    await expect(page.locator(".detail-foot")).toContainText("© Photographer 1 / Agency");
+    await expect(page.locator("[data-download]")).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(page.locator(".hero-image-button")).toBeFocused();
+  });
+
+  test("matches browser language preferences in order", async ({ page }) => {
+    await mockWallpaperNetwork(page);
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "languages", { value: ["fr-FR", "zh-SG", "en-US"] });
+    });
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
+  });
+
+  test("fits both languages at mobile, tablet, desktop and landscape widths", async ({ page }) => {
+    await mockWallpaperNetwork(page);
+    await page.goto("/");
+    await expect(page.locator(".wallpaper-card")).toHaveCount(6);
+    for (const locale of ["en", "zh-CN"]) {
+      await page.getByRole("combobox").selectOption(locale);
+      for (const [width, height] of [
+        [320, 844],
+        [390, 844],
+        [700, 900],
+        [701, 900],
+        [768, 1024],
+        [1120, 900],
+        [1121, 900],
+        [1440, 900],
+        [1920, 1080],
+        [844, 390],
+      ] as const) {
+        await page.setViewportSize({ width, height });
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+        ).toBe(true);
+        const select = page.getByRole("combobox");
+        await expect(select).toBeVisible();
+        const bounds = await select.boundingBox();
+        expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+      }
+    }
+  });
+});
+
+test.describe("Unsupported browser language", () => {
+  test.use({ locale: "fr-FR" });
+  test("falls back to English on first visit", async ({ page }) => {
+    await mockWallpaperNetwork(page);
+    await page.goto("/");
+    await expect(page.locator("#collection-title")).toHaveText("All wallpapers");
+    await expect(page.getByRole("combobox", { name: "Language", exact: true })).toHaveValue("en");
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      "content",
+      /Browse Bing wallpapers/,
+    );
   });
 });

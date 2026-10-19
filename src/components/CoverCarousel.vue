@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { useLocalization } from "../i18n";
 import { toRef } from "vue";
 import type { Wallpaper } from "../services/wallpapers";
-import { displayDate } from "../services/dates";
 import { useCarousel } from "../composables/useCarousel";
 import WallpaperImage from "./WallpaperImage.vue";
+const { t, formatDate, wallpaperTitle } = useLocalization();
 const props = defineProps<{ items: Wallpaper[]; modalOpen: boolean }>();
 const emit = defineEmits<{ open: [wallpaper: Wallpaper, event: MouseEvent] }>();
 const { index, current, playing, pause, step, toggle } = useCarousel(
@@ -19,8 +20,8 @@ function focusOut(event: FocusEvent) {
   <section
     v-if="current"
     class="hero"
-    aria-label="封面壁纸"
-    aria-roledescription="轮播"
+    :aria-label="t('cover.label')"
+    :aria-roledescription="t('cover.carousel')"
     @mouseenter="pause('hover', true)"
     @mouseleave="pause('hover', false)"
     @focusin="pause('focus', true)"
@@ -29,31 +30,31 @@ function focusOut(event: FocusEvent) {
     <button
       class="hero-image-button"
       type="button"
-      :aria-label="`查看壁纸：${current.title}`"
+      :aria-label="t('image.viewTitle', { title: wallpaperTitle(current) })"
       @click="emit('open', current, $event)"
     >
-      <WallpaperImage :src="current.imageUrl" :alt="current.title" kind="hero" />
-      <span class="hero-open-label">查看壁纸 <span aria-hidden="true">↗</span></span>
+      <WallpaperImage :src="current.imageUrl" :alt="wallpaperTitle(current)" kind="hero" />
+      <span class="hero-open-label">{{ t("image.view") }} <span aria-hidden="true">↗</span></span>
     </button>
     <div class="hero-caption">
       <div>
-        <span class="eyebrow">{{ displayDate(current.date, " / ") }}</span>
-        <h1 id="cover-title">{{ current.title }}</h1>
+        <span class="eyebrow">{{ formatDate(current.date) }}</span>
+        <h1 id="cover-title">{{ wallpaperTitle(current) }}</h1>
       </div>
       <div v-if="items.length > 1" class="hero-controls">
         <button
           id="cover-play"
           type="button"
-          :aria-label="playing ? '暂停轮播' : '播放轮播'"
+          :aria-label="playing ? t('cover.pause') : t('cover.play')"
           :aria-pressed="!playing"
           @click="toggle"
         >
           <span aria-hidden="true">{{ playing ? "Ⅱ" : "▷" }}</span>
         </button>
-        <button type="button" aria-label="上一张封面" @click="step(-1)">
+        <button type="button" :aria-label="t('cover.previous')" @click="step(-1)">
           <span aria-hidden="true">←</span>
         </button>
-        <button type="button" aria-label="下一张封面" @click="step(1)">
+        <button type="button" :aria-label="t('cover.next')" @click="step(1)">
           <span aria-hidden="true">→</span>
         </button>
         <span id="cover-position"

@@ -18,6 +18,7 @@ documentation in the same change. Avoid maintaining the same facts in multiple p
 - Components handle presentation and events; composables own lifecycle and state; services handle network I/O and data validation.
 - Current styles and fonts are defined by `src/styles/`, the components and `public/fonts/`.
 - API requests and response validation live in `src/services/wallpapers.ts`. Do not assume backend capabilities that the source does not use.
+- Interface translations and locale preferences live in `src/i18n/`; see [docs/i18n.md](docs/i18n.md) before changing language behavior or adding interface text.
 - Authentication, favorites, search and server-side pagination are not implemented. Gallery batches are a frontend display behavior.
 
 ## Change boundaries
