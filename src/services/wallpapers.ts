@@ -1,4 +1,4 @@
-import { displayDate, isCalendarDate } from "./dates";
+import { isCalendarDate } from "./dates";
 
 export interface Wallpaper {
   id: string;
@@ -80,7 +80,7 @@ export function normalizeResponse(value: unknown, query: WallpaperQuery): Wallpa
       items.set(row.id, {
         id: row.id,
         date: row.sourceDate,
-        title: row.title?.trim() || `${displayDate(row.sourceDate)} 壁纸`,
+        title: row.title?.trim() || "",
         imageUrl: row.imageUrl,
         downloadUrl: row.downloadUrl,
         copyright: row.copyright?.trim() || null,

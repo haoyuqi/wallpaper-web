@@ -10,6 +10,7 @@ required. There is no login, token storage, favorites or search in this version.
 | Feature                                | Owning source                                                           | Automated tests                                                   |
 | -------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | Startup and routing                    | `src/main.ts`, `src/router.ts`, `src/App.vue`                           | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Interface languages and preference     | `src/i18n/`, `src/components/LanguageSelect.vue`, `src/App.vue`         | `tests/unit/i18n.test.ts`, `tests/e2e/archive.spec.ts`            |
 | Archive, date URL and six-card batches | `src/components/ArchivePage.vue`, `src/composables/useArchive.ts`       | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
 | API boundary and nullable fields       | `src/services/wallpapers.ts`                                            | `tests/unit/services.test.ts`                                     |
 | Calendar-only dates                    | `src/services/dates.ts`                                                 | `tests/unit/services.test.ts`                                     |
@@ -68,6 +69,15 @@ no session state, token storage or authentication guards. Backend authentication
 and CORS settings are external deployment concerns; they are not defined or
 verified by this frontend repository.
 
+## Interface languages
+
+Vue I18n owns interface translations. `src/i18n/index.ts` resolves the initial
+locale, handles saved preferences and provides date/title presentation helpers;
+`LanguageSelect.vue` presents the native selector. `App.vue` owns reactive document
+language and metadata. Source titles and copyright stay untranslated, and absent
+titles are localized in components rather than baked into API results. See
+[interface languages](i18n.md) for selection rules, dictionaries and verification.
+
 ## Styles and fonts
 
 Shared colors, spacing and typography are defined in `src/styles/tokens.css`;
@@ -110,6 +120,7 @@ wallpaper-web/
 │   ├── router.ts             # History routing and date query
 │   ├── components/           # Archive, carousel, cards, viewer and status UI
 │   ├── composables/          # Lifecycle state and timing
+│   ├── i18n/                 # Locale preferences, presentation and dictionaries
 │   ├── services/             # API validation, dates and downloads
 │   └── styles/               # Shared tokens and responsive styles
 ├── tests/

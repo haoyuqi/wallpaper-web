@@ -101,8 +101,22 @@ button {
 .site-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin: 0 var(--page);
   min-height: 72px;
+}
+.language-select select {
+  min-height: var(--tap-size);
+  max-width: 128px;
+  padding: 8px;
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-control);
+  cursor: pointer;
 }
 .wordmark {
   display: flex;

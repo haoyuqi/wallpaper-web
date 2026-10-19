@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { useLocalization } from "../i18n";
 import type { Wallpaper } from "../services/wallpapers";
-import { displayDate } from "../services/dates";
 import WallpaperImage from "./WallpaperImage.vue";
+const { t, formatDate, wallpaperTitle } = useLocalization();
 defineProps<{ wallpaper: Wallpaper }>();
 const emit = defineEmits<{ open: [wallpaper: Wallpaper, event: MouseEvent] }>();
 </script>
@@ -10,18 +11,20 @@ const emit = defineEmits<{ open: [wallpaper: Wallpaper, event: MouseEvent] }>();
     <button
       type="button"
       class="card-image"
-      :aria-label="`查看壁纸：${wallpaper.title}`"
+      :aria-label="t('image.viewTitle', { title: wallpaperTitle(wallpaper) })"
       @click="emit('open', wallpaper, $event)"
     >
-      <WallpaperImage :src="wallpaper.imageUrl" :alt="wallpaper.title" /><span
+      <WallpaperImage :src="wallpaper.imageUrl" :alt="wallpaperTitle(wallpaper)" /><span
         class="card-open"
         aria-hidden="true"
-        >查看壁纸 ↗</span
+        >{{ t("image.view") }} ↗</span
       >
     </button>
-    <time class="card-meta" :datetime="wallpaper.date">{{ displayDate(wallpaper.date) }}</time>
+    <time class="card-meta" :datetime="wallpaper.date">{{ formatDate(wallpaper.date) }}</time>
     <h3>
-      <button type="button" @click="emit('open', wallpaper, $event)">{{ wallpaper.title }}</button>
+      <button type="button" @click="emit('open', wallpaper, $event)">
+        {{ wallpaperTitle(wallpaper) }}
+      </button>
     </h3>
   </article>
 </template>

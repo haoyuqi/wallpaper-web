@@ -8,6 +8,10 @@ Bing wallpaper archive frontend. Vue 3, TypeScript, Vue Router and native CSS,
 built with project-local Vite+. The interface uses a cinema layout, warm linen palette and LXGW
 WenKai font. The app uses real v1 API metadata; there is no production mock mode.
 
+The interface supports English and Simplified Chinese. It initially matches the
+browser's preferred languages and falls back to English. A saved manual selection
+takes priority on subsequent visits; choose a language at the top right.
+
 ```sh
 npm ci
 npm run dev
@@ -37,6 +41,7 @@ same-origin API reverse proxy and SPA history fallback on the static host.
 
 - [Architecture and feature map](docs/architecture.md)
 - [Code standards](docs/code-standards.md)
+- [Languages and translation maintenance](docs/i18n.md)
 - [AI entry point](AGENTS.md)
 - [Font license](public/fonts/OFL.txt)
 

@@ -16,3 +16,7 @@
   integration evidence with fixture-only screenshots.
 - Format with project-local Vite+; retain vue-tsc for .vue template type checking.
   Use the project-local commands declared in package.json.
+- Keep interface text and accessibility labels in the matching English/Chinese
+  dictionaries. Store state instead of translated messages, format source dates
+  in UTC, and preserve original API titles/copyright. Follow [i18n.md](i18n.md)
+  for translation ownership, fallback rules and coverage requirements.
