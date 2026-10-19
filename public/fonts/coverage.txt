@@ -1,0 +1,4 @@
+Version 1.530; October 18, 2026
+Source characters: 46926
+Output characters: 46926
+WOFF2 chunks: 92

@@ -1,0 +1,48 @@
+/* Shared colors, typography, spacing and interaction tokens. */
+:root {
+  --color-canvas: #f2efe9;
+  --color-surface: #f6f3ec;
+  --color-text: #34312b;
+  --color-muted: #706b60;
+  --color-line: #d5cfc3;
+  --color-control: #8c8272;
+  --color-accent: #755f41;
+  --color-on-accent: #ffffff;
+  --color-frame: #e6e0d5;
+  --color-stage: #252420;
+  --color-on-stage: #f6f3ec;
+  --color-danger: #984632;
+  --color-error-surface: #f5e8e0;
+  --color-skeleton: #e6e0d5;
+  --font-family: "LXGW WenKai", "Kaiti SC", "STKaiti", serif;
+  --font-brand: 25px;
+  --font-hero: 28px;
+  --font-section: 26px;
+  --font-card: 18px;
+  --font-body: 16px;
+  --font-control: 14px;
+  --font-meta: 13px;
+  --font-caption: 12px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --content-max: 1440px;
+  --page: 48px;
+  --tap-size: 44px;
+  --radius-pill: 999px;
+  --border-width: 1px;
+  --focus-width: 3px;
+  --motion-fast: 160ms;
+  --motion-image: 600ms;
+  --layer-dialog: 100;
+  --layer-notice: 110;
+  font-family: var(--font-family);
+  color-scheme: light;
+  font-synthesis: none;
+}
