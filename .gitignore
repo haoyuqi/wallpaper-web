@@ -7,3 +7,6 @@ dist/
 .DS_Store
 .agent-plans/
 .vite/
+coverage/
+test-results/
+playwright-report/

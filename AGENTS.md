@@ -31,9 +31,10 @@ documentation in the same change. Avoid maintaining the same facts in multiple p
 
 ## Verification
 
-Use the project commands in `package.json`: `npm run check` and `npm run build`.
-There is no automated test suite. For interaction or layout changes, perform
-focused browser checks using the guidance in README.
+Use the project commands in `package.json`: `npm test`, `npm run check` and
+`npm run build` (`npm run test:unit`, `npm run test:coverage` and `npm run test:e2e`
+can also be run individually). For interaction or layout changes, perform focused
+browser checks using the guidance in README.
 Report the checks actually performed, their results and any unverified scope.
 A successful build is not evidence of successful browser verification.
 
@@ -44,6 +45,6 @@ A successful build is not evidence of successful browser verification.
 - Commit messages and pull request titles use `type(scope): summary`. Supported types are `feat`, `fix`, `docs`, `chore`, `refactor`, `perf`, `style` and `test`. The scope is optional; use the affected area when useful, such as `archive`, `viewer`, `fonts` or `deps`.
 - Write the summary in English using the imperative mood, start with a lowercase letter and omit the trailing period. Keep the full subject within 72 characters. Example: `feat(archive): add wallpaper browsing and date filtering`.
 - Keep commits focused. Use the body to explain non-obvious rationale, link related issues and record verification results for substantial changes.
-- Before committing code changes, run `npm run check` and `npm run build`. Perform relevant browser checks for interaction or layout changes. For documentation-only changes, check formatting, links and factual accuracy.
+- Before committing code changes, run `npm test`, `npm run check` and `npm run build`. Perform relevant browser checks for interaction or layout changes. For documentation-only changes, check formatting, links and factual accuracy.
 - Review the files being staged, including untracked files. Never stage credentials, local environment files, dependency directories or generated build outputs.
 - Commit, push and merge only when authorized by the user.

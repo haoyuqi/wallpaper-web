@@ -16,5 +16,14 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    test: {
+      environment: "happy-dom",
+      include: ["tests/unit/**/*.test.ts"],
+      restoreMocks: true,
+      coverage: {
+        provider: "v8",
+        include: ["src/**/*.{ts,vue}"],
+      },
+    },
   };
 });

@@ -7,19 +7,19 @@ required. There is no login, token storage, favorites or search in this version.
 
 ## Find the implementation
 
-| Feature                                | Owning source                                                           |
-| -------------------------------------- | ----------------------------------------------------------------------- |
-| Startup and routing                    | `src/main.ts`, `src/router.ts`, `src/App.vue`                           |
-| Archive, date URL and six-card batches | `src/components/ArchivePage.vue`, `src/composables/useArchive.ts`       |
-| API boundary and nullable fields       | `src/services/wallpapers.ts`                                            |
-| Calendar-only dates                    | `src/services/dates.ts`                                                 |
-| Hero controls and pause reasons        | `src/components/CoverCarousel.vue`, `src/composables/useCarousel.ts`    |
-| Card and image feedback                | `src/components/WallpaperCard.vue`, `src/components/WallpaperImage.vue` |
-| Single-object modal                    | `src/components/WallpaperViewer.vue`                                    |
-| Download streaming limits              | `src/services/download.ts`                                              |
-| Request/empty/rate-limit presentation  | `src/components/ArchiveStatus.vue`, `src/composables/useRetryAfter.ts`  |
-| Visual tokens and responsive layout    | `src/styles/tokens.css`, `src/styles/main.css`                          |
-| Original font conversion               | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                   |
+| Feature                                | Owning source                                                           | Automated tests                                                   |
+| -------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Startup and routing                    | `src/main.ts`, `src/router.ts`, `src/App.vue`                           | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Archive, date URL and six-card batches | `src/components/ArchivePage.vue`, `src/composables/useArchive.ts`       | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
+| API boundary and nullable fields       | `src/services/wallpapers.ts`                                            | `tests/unit/services.test.ts`                                     |
+| Calendar-only dates                    | `src/services/dates.ts`                                                 | `tests/unit/services.test.ts`                                     |
+| Hero controls and pause reasons        | `src/components/CoverCarousel.vue`, `src/composables/useCarousel.ts`    | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
+| Card and image feedback                | `src/components/WallpaperCard.vue`, `src/components/WallpaperImage.vue` | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Single-object modal                    | `src/components/WallpaperViewer.vue`                                    | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Download streaming limits              | `src/services/download.ts`                                              | `tests/unit/services.test.ts`, `tests/e2e/archive.spec.ts`        |
+| Request/empty/rate-limit presentation  | `src/components/ArchiveStatus.vue`, `src/composables/useRetryAfter.ts`  | `tests/unit/components.test.ts`, `tests/unit/composables.test.ts` |
+| Visual tokens and responsive layout    | `src/styles/tokens.css`, `src/styles/main.css`                          | `tests/e2e/archive.spec.ts`                                       |
+| Original font conversion               | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                   | full source/output cmap equality in `scripts/build-fonts.py`      |
 
 ## Data and state
 
@@ -81,12 +81,13 @@ The original TTF is not shipped. Images use API URLs without inventing variants.
 
 ## Maintenance
 
-Keep this map aligned with source ownership. The implemented API request, types
+Keep this map aligned with source and test ownership. The implemented API request, types
 and response validation live in `src/services/wallpapers.ts`. Development and
 verification guidance belongs in README.md; coding rules in code-standards.md.
 
-There is no automated test suite. Verification uses format/lint, vue-tsc,
-production builds and focused browser checks.
+Automated verification combines unit/component tests (`tests/unit/`, run via `vp test`)
+and Playwright Chromium end-to-end tests (`tests/e2e/`, run against the built preview
+server with mocked network routes).
 
 ## Repository layout
 
@@ -105,12 +106,16 @@ wallpaper-web/
 │   ├── composables/          # Lifecycle state and timing
 │   ├── services/             # API validation, dates and downloads
 │   └── styles/               # Shared tokens and responsive styles
+├── tests/
+│   ├── unit/                 # Service, composable and component unit tests
+│   └── e2e/                  # Playwright Chromium end-to-end tests
 ├── public/fonts/             # Font chunks, coverage and OFL license
 ├── scripts/build-fonts.py    # Font generation
 ├── .env.example              # Public configuration template
 ├── index.html
 ├── package.json
 ├── package-lock.json
+├── playwright.config.ts      # Playwright E2E configuration
 ├── tsconfig.json
 └── vite.config.ts
 ```
