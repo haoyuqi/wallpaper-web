@@ -89,15 +89,21 @@ Automated verification combines unit/component tests (`tests/unit/`, run via `vp
 and Playwright Chromium end-to-end tests (`tests/e2e/`, run against the built preview
 server with mocked network routes).
 
+GitHub Actions runs these checks and the dependency audit through
+[ci.yml](../.github/workflows/ci.yml). Triggers, reports and failure handling are
+documented in [CI guide](ci.md).
+
 ## Repository layout
 
 ```text
 wallpaper-web/
+├── .github/workflows/ci.yml  # Automated checks, tests and dependency audit
 ├── README.md                 # Setup, development, verification and font tooling
 ├── AGENTS.md                 # AI instructions and reference entry point
 ├── docs/
 │   ├── architecture.md       # Module ownership and data flow
-│   └── code-standards.md      # Coding conventions
+│   ├── code-standards.md      # Coding conventions
+│   └── ci.md                  # CI operation, reports and failure handling
 ├── src/
 │   ├── main.ts               # Bootstrap
 │   ├── App.vue
