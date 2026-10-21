@@ -18,10 +18,10 @@ is shared. Four jobs run independently:
 | Dependency audit | `npm audit --package-lock-only --include=dev --audit-level=high --json` | Known vulnerabilities in locked production and development dependencies |
 
 `CI result` succeeds only when all four jobs succeed. Failed, cancelled or skipped
-jobs fail the aggregate check. This workflow does not configure branch protection;
-enforcing the result before merging requires a repository rule. New runs cancel
-older runs for the same event and PR/ref; scheduled, manual and push runs do not
-cancel each other.
+jobs fail the aggregate check. The `main` branch protection requires `CI result`
+and an up-to-date branch before merging; the workflow itself does not configure
+it. New runs cancel older runs for the same event and PR/ref; scheduled, manual
+and push runs do not cancel each other.
 
 E2E tests mock API and image requests and need no backend, private files or secrets.
 On Linux CI, Chromium and its system dependencies are installed with
@@ -58,3 +58,24 @@ Dependabot and Actions email delivery; a failed scheduled run alone does not
 guarantee that you receive an email. CI does not change those settings or post
 automatic comments. Daily scans preserve the lockfile; they do not upgrade
 dependencies or test the latest versions.
+
+## Dependabot patch auto-merge
+
+[Dependabot auto-merge](../.github/workflows/dependabot-auto-merge.yml) enables
+squash auto-merge for a Dependabot pull request only when all of these hold:
+
+- The pull request is not a draft, comes from this repository and targets `main`.
+- Dependabot reports an npm update of type `semver-patch`.
+- Only `package.json` and `package-lock.json` are modified.
+
+GitHub then merges it after `CI result` passes and the branch is up to date.
+Minor, major, pre-release and unrecognized updates stay open for manual review.
+If a pull request later stops matching, for example after a new commit changes
+other files, the workflow disables its auto-merge. Merging only changes the code:
+it does not tag, publish or deploy.
+
+The workflow runs on `pull_request_target` with write permissions, so it must not
+check out or execute pull request code. It uses the built-in `GITHUB_TOKEN`, and
+`dependabot/fetch-metadata` rejects commits that Dependabot did not author and
+verify. Auto-merge also requires **Allow auto-merge** in the repository settings;
+turn that setting off to stop all automatic merging.
