@@ -44,41 +44,21 @@ if (process.argv[2] === "collect") {
     ["Build and E2E", "build-and-e2e"],
     ["Dependency audit", "dependency-audit"],
   ];
+  const failed = jobs.filter(([, key]) => needs[key]?.result !== "success");
   const lines = [
-    "# CI run summary",
+    `# ${failed.length ? "❌ CI failed" : "✅ CI passed"}`,
     "",
-    `**Overall:** ${jobs.every(([, key]) => needs[key]?.result === "success") ? "Passed" : "Failed"}`,
+    "| Tests · Vitest | Line coverage | Checks |",
+    "| :--- | :--- | :--- |",
+    `| **${display(data.passed)} / ${display(data.tests)} passed**<br>${display(data.files)} test files | **${display(data.coverage)}**<br>\`src/**/*.{ts,vue}\` | **${jobs.length - failed.length} / ${jobs.length} passed** |`,
     "",
-    "## Checks",
-    "",
-    "| Job | Result |",
-    "| --- | --- |",
-    ...jobs.map(([name, key]) => `| ${name} | ${status(needs[key]?.result)} |`),
-    "",
-    "## Test results",
-    "",
-    "| Suite | Passed | Total | Files |",
-    "| --- | ---: | ---: | ---: |",
-    `| Vitest unit tests | ${display(data.passed)} | ${display(data.tests)} | ${display(data.files)} |`,
-    "",
-    "## Coverage",
-    "",
-    "| Scope | Line coverage |",
-    "| --- | ---: |",
-    `| \`src/**/*.{ts,vue}\` | ${display(data.coverage)} |`,
-    "",
-    "## Installed environment",
-    "",
-    "| Tool | Version |",
-    "| --- | --- |",
-    `| Node.js | ${display(data.node)} |`,
-    `| npm | ${display(data.npm)} |`,
-    `| Vue | ${display(data.vue)} |`,
-    "",
-    "## Reports",
-    "",
-    `[Download this run's reports](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}#artifacts): \`coverage\`, \`playwright-results\`, and \`dependency-audit\` when available.`,
+    `**Environment:** Node.js ${display(data.node)} · npm ${display(data.npm)} · Vue ${display(data.vue)}`,
   ];
+  if (failed.length) {
+    lines.push("", "## Checks needing attention", "", "| Job | Result |", "| --- | --- |",
+      ...failed.map(([name, key]) => `| ${name} | ${status(needs[key]?.result)} |`));
+  }
+  lines.push("", `[Download test and coverage reports](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}#artifacts). These are files saved by this CI run.`);
   writeFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
 } else {
   throw new Error("Expected collect or render");
