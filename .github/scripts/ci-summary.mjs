@@ -77,7 +77,7 @@ if (process.argv[2] === "collect") {
     "",
     "## Reports",
     "",
-    "Download the `coverage`, `playwright-results`, and `dependency-audit` artifacts from this run when available.",
+    `[Download this run's reports](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}#artifacts): \`coverage\`, \`playwright-results\`, and \`dependency-audit\` when available.`,
   ];
   writeFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
 } else {
