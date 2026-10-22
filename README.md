@@ -70,6 +70,9 @@ CI or broad browser/accessibility compliance without evidence.
 unit/component tests, production build, Chromium E2E tests and a dependency audit.
 See the [CI guide](docs/ci.md) for triggers, reports and failure handling.
 
+Line coverage for `src/**/*.{ts,vue}`: **100%**, measured by Vitest in the
+[CI run on 2026-10-22](https://github.com/haoyuqi/wallpaper-web/actions/runs/39708394944).
+
 ## Browser checks
 
 Use Chrome to verify real API loading, date query/reload/back/clear, six-card
