@@ -33,6 +33,7 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "26"
+          check-latest: true
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Use the declared npm version
@@ -54,6 +55,7 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "26"
+          check-latest: true
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Use the declared npm version
@@ -93,6 +95,7 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "26"
+          check-latest: true
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Use the declared npm version
@@ -127,6 +130,7 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "26"
+          check-latest: true
           package-manager-cache: false
       - name: Use the declared npm version
         run: |
@@ -156,6 +160,7 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "26"
+          check-latest: true
           package-manager-cache: false
       - name: Download summary data
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
