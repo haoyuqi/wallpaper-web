@@ -73,7 +73,9 @@ unit/component tests, production build, Chromium E2E tests and a dependency audi
 See the [CI guide](docs/ci.md) for triggers, reports and failure handling.
 
 The coverage badge above updates after each successful default-branch CI run.
-It reports Vitest line coverage for `src/**/*.{ts,vue}`.
+Vitest includes every `src/**/*.{ts,vue}` file in its line coverage report, and
+CI fails if even one executable source line is uncovered. The gate checks the
+raw uncovered-line count, so report rounding cannot allow a miss.
 
 ## Browser checks
 
