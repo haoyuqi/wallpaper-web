@@ -71,8 +71,8 @@ CI or broad browser/accessibility compliance without evidence.
 unit/component tests, production build, Chromium E2E tests and a dependency audit.
 See the [CI guide](docs/ci.md) for triggers, reports and failure handling.
 
-The coverage badge above updates after each successful default-branch Vitest
-coverage run. It reports line coverage for `src/**/*.{ts,vue}`.
+The coverage badge above updates after each successful default-branch CI run.
+It reports Vitest line coverage for `src/**/*.{ts,vue}`.
 
 ## Browser checks
 
