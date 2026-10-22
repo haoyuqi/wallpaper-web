@@ -1,6 +1,7 @@
 name: Bug report
 description: Report a problem with the wallpaper web app
 title: ""
+labels: [bug]
 body:
   - type: textarea
     id: problem
@@ -27,31 +28,19 @@ body:
       description: State what you expected and what happened instead.
     validations:
       required: true
-  - type: input
-    id: app_version
-    attributes:
-      label: App version or commit
-      description: Use the installed version or commit SHA, without a leading v.
-      placeholder: 1.2.3 or 0123456789abcdef
-    validations:
-      required: true
   - type: textarea
     id: environment
     attributes:
-      label: Browser and operating system
-      description: Include the browser name and exact version, plus the operating system and version.
-      placeholder: Firefox 131.0.3 on macOS 15.0
+      label: Environment
+      description: Include the installed app version or commit SHA (without a leading v), exact browser version, and operating system and version.
+      placeholder: |-
+        App version or commit: 1.2.3 or 0123456789abcdef
+        Browser: Firefox 131.0.3
+        Operating system: macOS 15.0
     validations:
       required: true
   - type: textarea
-    id: visual_details
+    id: diagnostics
     attributes:
-      label: Viewport and screenshot (optional)
-      description: For visual issues, include the viewport size and attach a screenshot if available.
-      render: markdown
-  - type: textarea
-    id: api_request
-    attributes:
-      label: Sanitized API request (optional)
-      description: Fill this in only when the issue involves an API request. Remove tokens, cookies, and personal data.
-      render: shell
+      label: Diagnostics (optional)
+      description: For visual issues, include viewport dimensions and attach a screenshot if available. Include a sanitized API request only when relevant; remove tokens, cookies, and personal data.
