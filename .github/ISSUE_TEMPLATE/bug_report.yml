@@ -1,0 +1,46 @@
+name: Bug report
+description: Report a problem with the wallpaper web app
+title: ""
+labels: [bug]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What went wrong?
+      description: Describe the problem and where you encountered it.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include the app language and the steps that trigger the problem.
+      placeholder: |-
+        1. Set the app language to ...
+        2. Open ...
+        3. Select ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: Expected and actual behavior
+      description: State what you expected and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the installed app version or commit SHA (without a leading v), exact browser version, and operating system and version.
+      placeholder: |-
+        App version or commit: 1.2.3 or 0123456789abcdef
+        Browser: Firefox 131.0.3
+        Operating system: macOS 15.0
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics (optional)
+      description: For visual issues, include viewport dimensions and attach a screenshot if available. Include a sanitized API request only when relevant; remove tokens, cookies, and personal data.
