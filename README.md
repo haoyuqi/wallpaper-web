@@ -53,8 +53,9 @@ Authentication and server-side pagination are not implemented by this frontend.
 ## Development guidelines
 
 Read AGENTS.md and docs/architecture.md before changes. Keep changes scoped and
-preserve unrelated work. Use Node.js 26 or later and the npm version declared in `package.json`;
-all build tools are project-local. Never commit .env or credentials.
+preserve unrelated work. Use Node.js 26.12.1 or later and the npm version
+declared in `package.json`; all build tools are project-local. Never commit .env
+or credentials.
 
 Validate changes with automated tests (`npm test`), format/lint and type checking
 (`npm run check`), production builds (`npm run build`) and focused browser checks.
