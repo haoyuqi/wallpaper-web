@@ -7,8 +7,8 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    # 22:00 UTC is 06:00 Asia/Shanghai on the following day.
-    - cron: "0 22 * * *"
+    # 19:21 UTC is 03:21 Asia/Shanghai on the following day.
+    - cron: "21 19 * * *"
 
 permissions:
   contents: read
