@@ -26,6 +26,8 @@ export default defineConfig(({ mode }) => {
         include: ["src/**/*.{ts,vue}"],
         reporter: ["text", "html", "json", "json-summary"],
         thresholds: {
+          // Negative thresholds count uncovered lines; less than one requires zero and avoids rounding.
+          lines: -0.1,
           "src/i18n/**": { statements: 100, branches: 100, functions: 100, lines: 100 },
           "src/components/LanguageSelect.vue": {
             statements: 100,
