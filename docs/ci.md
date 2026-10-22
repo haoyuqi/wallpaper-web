@@ -1,7 +1,7 @@
 # Continuous integration
 
 [CI](../.github/workflows/ci.yml) runs on pull requests targeting `main`, pushes to
-`main`, manual dispatch and a daily schedule at 06:00 Beijing time (22:00 UTC on
+`main`, manual dispatch and a daily schedule at 03:21 Beijing time (19:21 UTC on
 the previous day). GitHub schedules run only on the default branch and may be
 delayed. In public repositories, GitHub disables scheduled workflows after 60
 days without repository activity; re-enable them from Actions if needed.
