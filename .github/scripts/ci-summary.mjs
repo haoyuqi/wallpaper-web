@@ -26,7 +26,7 @@ if (process.argv[2] === "collect") {
   const tests = readJson("vitest-results.json");
   const coverage = readJson("coverage/coverage-summary.json")?.total?.lines?.pct;
   const data = {
-    node: process.version,
+    node: process.versions.node,
     npm: npmVersion(),
     vue: readJson("node_modules/vue/package.json")?.version ?? null,
     tests: tests?.numTotalTests ?? null,
@@ -46,7 +46,7 @@ if (process.argv[2] === "collect") {
   ];
   const failed = jobs.filter(([, key]) => needs[key]?.result !== "success");
   const lines = [
-    `# ${failed.length ? "❌ CI failed" : "✅ CI passed"}`,
+    `# ${failed.length ? "🔴 CI failed" : "🟢 CI passed"}`,
     "",
     "| Tests · Vitest | Line coverage | Checks |",
     "| :--- | :--- | :--- |",
