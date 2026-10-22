@@ -55,10 +55,19 @@ if (process.argv[2] === "collect") {
     `**Environment:** Node.js ${display(data.node)} · npm ${display(data.npm)} · Vue ${display(data.vue)}`,
   ];
   if (failed.length) {
-    lines.push("", "## Checks needing attention", "", "| Job | Result |", "| --- | --- |",
-      ...failed.map(([name, key]) => `| ${name} | ${status(needs[key]?.result)} |`));
+    lines.push(
+      "",
+      "## Checks needing attention",
+      "",
+      "| Job | Result |",
+      "| --- | --- |",
+      ...failed.map(([name, key]) => `| ${name} | ${status(needs[key]?.result)} |`),
+    );
   }
-  lines.push("", `[Download test and coverage reports](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}#artifacts). These are files saved by this CI run.`);
+  lines.push(
+    "",
+    `[Download test and coverage reports](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}#artifacts). These are files saved by this CI run.`,
+  );
   writeFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
 } else {
   throw new Error("Expected collect or render");
