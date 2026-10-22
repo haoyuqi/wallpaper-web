@@ -1,6 +1,7 @@
 # Wallpaper Web
 
 [![CI](https://github.com/haoyuqi/wallpaper-web/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/haoyuqi/wallpaper-web/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fhaoyuqi%2Fwallpaper-web%2Fcoverage-badge%2Fcoverage.json)](https://github.com/haoyuqi/wallpaper-web/actions/workflows/ci.yml?query=branch%3Amain)
 [![Latest release](https://img.shields.io/github/v/release/haoyuqi/wallpaper-web)](https://github.com/haoyuqi/wallpaper-web/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -70,8 +71,8 @@ CI or broad browser/accessibility compliance without evidence.
 unit/component tests, production build, Chromium E2E tests and a dependency audit.
 See the [CI guide](docs/ci.md) for triggers, reports and failure handling.
 
-Line coverage for `src/**/*.{ts,vue}`: **100%**, measured by Vitest in the
-[CI run on 2026-10-22](https://github.com/haoyuqi/wallpaper-web/actions/runs/39708394944).
+The coverage badge above updates after each successful default-branch Vitest
+coverage run. It reports line coverage for `src/**/*.{ts,vue}`.
 
 ## Browser checks
 
