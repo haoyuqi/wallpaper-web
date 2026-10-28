@@ -39,6 +39,7 @@ if (process.argv[2] === "collect") {
   const needs = readJson("ci-needs.json") ?? {};
   const data = readJson("ci-data/ci-web-metrics.json") ?? {};
   const jobs = [
+    ["Release script tests", "release-script-tests"],
     ["Check", "check"],
     ["Unit tests", "unit-tests"],
     ["Build and E2E", "build-and-e2e"],

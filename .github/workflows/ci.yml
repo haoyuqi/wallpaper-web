@@ -6,6 +6,7 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  workflow_call:
   schedule:
     # 19:21 UTC is 03:21 Asia/Shanghai on the following day.
     - cron: "21 19 * * *"
@@ -22,6 +23,18 @@ defaults:
     shell: bash
 
 jobs:
+  release-script-tests:
+    name: Release script tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python3 -m unittest discover -s .github/scripts -p "test_*.py"
+
   check:
     name: Check
     runs-on: ubuntu-24.04
@@ -150,7 +163,7 @@ jobs:
   ci:
     name: CI result
     if: ${{ always() }}
-    needs: [check, unit-tests, build-and-e2e, dependency-audit]
+    needs: [release-script-tests, check, unit-tests, build-and-e2e, dependency-audit]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -176,16 +189,18 @@ jobs:
           node .github/scripts/ci-summary.mjs render
       - name: Require every check to succeed
         env:
+          SCRIPT_RESULT: ${{ needs.release-script-tests.result }}
           CHECK_RESULT: ${{ needs.check.result }}
           UNIT_RESULT: ${{ needs.unit-tests.result }}
           E2E_RESULT: ${{ needs.build-and-e2e.result }}
           AUDIT_RESULT: ${{ needs.dependency-audit.result }}
         run: |
+          echo "Release script tests: $SCRIPT_RESULT"
           echo "Check: $CHECK_RESULT"
           echo "Unit tests: $UNIT_RESULT"
           echo "Build and E2E: $E2E_RESULT"
           echo "Dependency audit: $AUDIT_RESULT"
-          for result in "$CHECK_RESULT" "$UNIT_RESULT" "$E2E_RESULT" "$AUDIT_RESULT"; do
+          for result in "$SCRIPT_RESULT" "$CHECK_RESULT" "$UNIT_RESULT" "$E2E_RESULT" "$AUDIT_RESULT"; do
             if [[ "$result" != "success" ]]; then
               echo "::error::Every required job must succeed."
               exit 1
