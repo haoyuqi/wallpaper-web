@@ -1,9 +1,15 @@
-# Wallpaper Web
+<h1 align="center">Wallpaper Web</h1>
 
-[![CI](https://github.com/haoyuqi/wallpaper-web/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/haoyuqi/wallpaper-web/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fhaoyuqi%2Fwallpaper-web%2Fcoverage-badge%2Fcoverage.json)](https://github.com/haoyuqi/wallpaper-web/actions/workflows/ci.yml?query=branch%3Amain)
-[![Latest release](https://img.shields.io/github/v/release/haoyuqi/wallpaper-web)](https://github.com/haoyuqi/wallpaper-web/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<p align="center">
+  <a href="https://github.com/haoyuqi/wallpaper-web/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/haoyuqi/wallpaper-web/actions/workflows/ci.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/haoyuqi/wallpaper-web/actions/workflows/ci.yml?query=branch%3Amain"><img alt="Coverage" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fhaoyuqi%2Fwallpaper-web%2Fcoverage-badge%2Fcoverage.json"></a>
+  <a href="https://github.com/haoyuqi/wallpaper-web/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/haoyuqi/wallpaper-web"></a>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+</p>
+
+<p align="center">
+  English | <a href="README.zh-CN.md">简体中文</a>
+</p>
 
 Bing wallpaper archive frontend. Vue 3, TypeScript, Vue Router and native CSS,
 built with project-local Vite+. The interface uses a cinema layout, warm linen palette and LXGW

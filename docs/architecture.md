@@ -115,6 +115,7 @@ wallpaper-web/
 ├── .gitattributes            # Line endings and binary font assets
 ├── .github/workflows/ci.yml  # Automated checks, tests and dependency audit
 ├── README.md                 # Setup, development, verification and font tooling
+├── README.zh-CN.md           # Simplified Chinese translation of README.md
 ├── AGENTS.md                 # AI instructions and reference entry point
 ├── docs/
 │   ├── architecture.md       # Module ownership and data flow
