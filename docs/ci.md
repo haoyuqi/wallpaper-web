@@ -33,18 +33,17 @@ timeout for installation and report upload.
 Coverage, Playwright reports/failure attachments and dependency audit JSON reports
 are retained as Actions artifacts for seven days, including after test/audit
 failures when reports were generated. Open the failed job's logs first, download
-the relevant artifact and reproduce with the command above. For Playwright HTML
-reports, extract the artifact and run
+the relevant artifact and reproduce with the command above. Playwright writes its
+HTML report and failure attachments under `tests/e2e/.results/`. For HTML reports,
+extract the artifact and run
 `npx --no-install playwright show-report /path/to/playwright-report`.
 
 The coverage job includes every `src/**/*.{ts,vue}` file, including files not
-imported by a test. It enforces a raw maximum of zero uncovered executable lines
-across that full source scope; this avoids a percentage rounding loophole. It
-also enforces 100% statements, branches, functions and lines for `src/i18n/**`
-and `src/components/LanguageSelect.vue`. Dictionary keys and interpolation
-parameters are checked by unit tests. HTML and JSON coverage reports are
-included in the coverage artifact. See [interface languages](i18n.md) for the
-locale-specific test scenarios.
+imported by a test. It enforces 100% statements, branches, functions and lines
+across that full source scope, so no executable line or branch may go uncovered.
+Dictionary keys and interpolation parameters are checked by unit tests. HTML and
+JSON coverage reports are included in the coverage artifact. See
+[interface languages](i18n.md) for the locale-specific test scenarios.
 
 High and critical dependency advisories fail the audit; lower severities remain
 in the report. Audit service or network errors also fail the job. The audit reads

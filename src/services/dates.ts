@@ -10,6 +10,3 @@ export function recentRange(now = new Date()): { from: string; to: string } {
   start.setUTCDate(start.getUTCDate() - 29);
   return { from: start.toISOString().slice(0, 10), to: end };
 }
-export function displayDate(date: string, separator = "."): string {
-  return date.split("-").join(separator);
-}

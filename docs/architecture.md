@@ -30,9 +30,10 @@ days; an invalid date has an inline recovery state and is never sent to the API.
 Unknown paths redirect to `/`. The static host must serve `index.html` for SPA
 paths; configure this fallback in the deployment server.
 
-`useArchive` calls the v1 service and cancels superseded requests. Its sequence
-number also rejects late responses from a transport which ignores cancellation.
-The hero advances every 5 seconds while autoplay is active.
+`useArchive` calls the v1 service and cancels superseded requests for both the
+gallery and the hero. Its sequence numbers also reject late responses from a
+transport which ignores cancellation, so a stale retry cannot overwrite a newer
+result. The hero advances every 5 seconds while autoplay is active.
 Hero data is a separate, initial default-query snapshot (up to eight records),
 independent of gallery filtering. Gallery stores returned metadata and renders
 six records at a time; more reveals six additional keyed nodes. There are no
@@ -107,6 +108,8 @@ documented in [CI guide](ci.md).
 
 ```text
 wallpaper-web/
+├── .editorconfig             # Shared editor defaults
+├── .gitattributes            # Line endings and binary font assets
 ├── .github/workflows/ci.yml  # Automated checks, tests and dependency audit
 ├── README.md                 # Setup, development, verification and font tooling
 ├── AGENTS.md                 # AI instructions and reference entry point
@@ -125,7 +128,7 @@ wallpaper-web/
 │   └── styles/               # Shared tokens and responsive styles
 ├── tests/
 │   ├── unit/                 # Service, composable and component unit tests
-│   └── e2e/                  # Playwright Chromium end-to-end tests
+│   └── e2e/                  # Playwright Chromium end-to-end tests and .results/
 ├── public/fonts/             # Font chunks, coverage and OFL license
 ├── scripts/build-fonts.py    # Font generation
 ├── .env.example              # Public configuration template

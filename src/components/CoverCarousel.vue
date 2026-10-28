@@ -46,7 +46,6 @@ function focusOut(event: FocusEvent) {
           id="cover-play"
           type="button"
           :aria-label="playing ? t('cover.pause') : t('cover.play')"
-          :aria-pressed="!playing"
           @click="toggle"
         >
           <span aria-hidden="true">{{ playing ? "Ⅱ" : "▷" }}</span>

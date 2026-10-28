@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
-import { displayDate, isCalendarDate, recentRange } from "../../src/services/dates";
+import { isCalendarDate, recentRange } from "../../src/services/dates";
 import { fetchDownload, MAX_DOWNLOAD_BYTES } from "../../src/services/download";
 import {
   ApiError,
@@ -80,11 +80,6 @@ describe("calendar date utilities", () => {
       from: "2026-09-20",
       to: "2026-10-19",
     });
-  });
-
-  it("formats calendar dates directly without timezone shifts", () => {
-    expect(displayDate("2026-10-18")).toBe("2026.10.18");
-    expect(displayDate("2026-10-18", " / ")).toBe("2026 / 10 / 18");
   });
 });
 

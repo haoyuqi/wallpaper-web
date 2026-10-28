@@ -40,22 +40,15 @@ The production artifact is `dist/`, a static SPA. The development API proxy does
 not ship with it: configure a public VITE_API_BASE_URL at build time or a
 same-origin API reverse proxy and SPA history fallback on the static host.
 
-- [Architecture and feature map](docs/architecture.md)
-- [Code standards](docs/code-standards.md)
-- [Languages and translation maintenance](docs/i18n.md)
-- [AI entry point](AGENTS.md)
-- [Font license](public/fonts/OFL.txt)
-
 The current API client and response validation are in `src/services/wallpapers.ts`.
 It requests `GET /api/v1/wallpapers` with either `date` or `from`/`to` parameters.
 Authentication and server-side pagination are not implemented by this frontend.
 
 ## Development guidelines
 
-Read AGENTS.md and docs/architecture.md before changes. Keep changes scoped and
-preserve unrelated work. Use Node.js 26.12.1 or later and the npm version
-declared in `package.json`; all build tools are project-local. Never commit .env
-or credentials.
+Keep changes scoped and preserve unrelated work. Use Node.js 26.12.1 or later and
+the npm version declared in `package.json`; all build tools are project-local.
+Never commit .env or credentials.
 
 Validate changes with automated tests (`npm test`), format/lint and type checking
 (`npm run check`), production builds (`npm run build`) and focused browser checks.
@@ -70,12 +63,10 @@ CI or broad browser/accessibility compliance without evidence.
 
 [GitHub Actions](.github/workflows/ci.yml) runs formatting, lint, type checks,
 unit/component tests, production build, Chromium E2E tests and a dependency audit.
-See the [CI guide](docs/ci.md) for triggers, reports and failure handling.
 
 The coverage badge above updates after each successful default-branch CI run.
-Vitest includes every `src/**/*.{ts,vue}` file in its line coverage report, and
-CI fails if even one executable source line is uncovered. The gate checks the
-raw uncovered-line count, so report rounding cannot allow a miss.
+Vitest includes every `src/**/*.{ts,vue}` file in its coverage report, and CI fails
+unless statements, branches, functions and lines stay at 100%.
 
 ## Browser checks
 

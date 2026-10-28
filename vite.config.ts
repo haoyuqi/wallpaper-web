@@ -2,7 +2,8 @@ import { defineConfig, loadEnv } from "vite-plus";
 import vue from "@vitejs/plugin-vue";
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
+  // Only the dev proxy target is read here; VITE_* values are handled by Vite itself.
+  const env = loadEnv(mode, process.cwd(), "API_");
   return {
     plugins: [vue()],
     server: {
@@ -26,15 +27,12 @@ export default defineConfig(({ mode }) => {
         include: ["src/**/*.{ts,vue}"],
         reporter: ["text", "html", "json", "json-summary"],
         thresholds: {
-          // Negative thresholds count uncovered lines; less than one requires zero and avoids rounding.
-          lines: -0.1,
-          "src/i18n/**": { statements: 100, branches: 100, functions: 100, lines: 100 },
-          "src/components/LanguageSelect.vue": {
-            statements: 100,
-            branches: 100,
-            functions: 100,
-            lines: 100,
-          },
+          // Every executable statement, branch, function and line in src/ must be
+          // covered; the locale dictionaries hold static data verified by parity tests.
+          statements: 100,
+          branches: 100,
+          functions: 100,
+          lines: 100,
         },
       },
     },

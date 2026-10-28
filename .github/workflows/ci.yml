@@ -114,8 +114,8 @@ jobs:
         with:
           name: playwright-results
           path: |
-            playwright-report/
-            test-results/
+            tests/e2e/.results/playwright-report/
+            tests/e2e/.results/test-results/
           retention-days: 7
           if-no-files-found: warn
 
