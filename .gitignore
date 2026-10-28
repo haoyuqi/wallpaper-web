@@ -8,5 +8,4 @@ dist/
 .agent-plans/
 .vite/
 coverage/
-test-results/
-playwright-report/
+tests/e2e/.results/

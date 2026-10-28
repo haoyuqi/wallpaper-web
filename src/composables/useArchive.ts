@@ -19,7 +19,8 @@ export function useArchive(date: Ref<string | null>, loader: Loader = loadWallpa
   const loadedQuery = shallowRef<WallpaperQuery>(recentRange());
   let request = 0;
   let active: AbortController | undefined;
-  const heroController = new AbortController();
+  let heroRequest = 0;
+  let heroActive: AbortController | undefined;
   let disposed = false;
   async function load() {
     const number = ++request;
@@ -42,16 +43,20 @@ export function useArchive(date: Ref<string | null>, loader: Loader = loadWallpa
     }
   }
   async function reloadHero() {
+    const number = ++heroRequest;
+    heroActive?.abort();
+    heroActive = new AbortController();
     heroLoading.value = true;
     heroError.value = null;
     try {
-      const result = await loader(recentRange(), heroController.signal);
-      if (!disposed) hero.value = result.slice(0, 8);
+      const result = await loader(recentRange(), heroActive.signal);
+      if (number !== heroRequest || disposed) return;
+      hero.value = result.slice(0, 8);
     } catch (failure) {
-      if (!disposed)
-        heroError.value = failure instanceof ApiError ? failure : new ApiError("network");
+      if (number !== heroRequest || disposed) return;
+      heroError.value = failure instanceof ApiError ? failure : new ApiError("network");
     } finally {
-      if (!disposed) heroLoading.value = false;
+      if (number === heroRequest && !disposed) heroLoading.value = false;
     }
   }
   void reloadHero();
@@ -65,8 +70,9 @@ export function useArchive(date: Ref<string | null>, loader: Loader = loadWallpa
   onScopeDispose(() => {
     disposed = true;
     request++;
+    heroRequest++;
     active?.abort();
-    heroController.abort();
+    heroActive?.abort();
   });
   return {
     items,

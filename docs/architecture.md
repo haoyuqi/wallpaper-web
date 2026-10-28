@@ -7,20 +7,22 @@ required. There is no login, token storage, favorites or search in this version.
 
 ## Find the implementation
 
-| Feature                                | Owning source                                                           | Automated tests                                                   |
-| -------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Startup and routing                    | `src/main.ts`, `src/router.ts`, `src/App.vue`                           | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Interface languages and preference     | `src/i18n/`, `src/components/LanguageSelect.vue`, `src/App.vue`         | `tests/unit/i18n.test.ts`, `tests/e2e/archive.spec.ts`            |
-| Archive, date URL and six-card batches | `src/components/ArchivePage.vue`, `src/composables/useArchive.ts`       | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
-| API boundary and nullable fields       | `src/services/wallpapers.ts`                                            | `tests/unit/services.test.ts`                                     |
-| Calendar-only dates                    | `src/services/dates.ts`                                                 | `tests/unit/services.test.ts`                                     |
-| Hero controls and pause reasons        | `src/components/CoverCarousel.vue`, `src/composables/useCarousel.ts`    | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
-| Card and image feedback                | `src/components/WallpaperCard.vue`, `src/components/WallpaperImage.vue` | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Single-object modal                    | `src/components/WallpaperViewer.vue`                                    | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Download streaming limits              | `src/services/download.ts`                                              | `tests/unit/services.test.ts`, `tests/e2e/archive.spec.ts`        |
-| Request/empty/rate-limit presentation  | `src/components/ArchiveStatus.vue`, `src/composables/useRetryAfter.ts`  | `tests/unit/components.test.ts`, `tests/unit/composables.test.ts` |
-| Visual tokens and responsive layout    | `src/styles/tokens.css`, `src/styles/main.css`                          | `tests/e2e/archive.spec.ts`                                       |
-| Original font conversion               | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                   | full source/output cmap equality in `scripts/build-fonts.py`      |
+| Feature                                  | Owning source                                                                                           | Automated tests                                                   |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Startup and routing                      | `src/main.ts`, `src/router.ts`, `src/App.vue`                                                           | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Interface languages and preference       | `src/i18n/`, `src/components/LanguageSelect.vue`, `src/App.vue`                                         | `tests/unit/i18n.test.ts`, `tests/e2e/archive.spec.ts`            |
+| Archive, date URL and six-card batches   | `src/components/ArchivePage.vue`, `src/composables/useArchive.ts`                                       | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
+| Request lifecycle and retry cancellation | `src/composables/useArchive.ts`, `src/services/wallpapers.ts`                                           | `tests/unit/composables.test.ts`, `tests/unit/services.test.ts`   |
+| API boundary and nullable fields         | `src/services/wallpapers.ts`                                                                            | `tests/unit/services.test.ts`                                     |
+| Calendar-only dates                      | `src/services/dates.ts`                                                                                 | `tests/unit/services.test.ts`                                     |
+| Hero controls and pause reasons          | `src/components/CoverCarousel.vue`, `src/composables/useCarousel.ts`                                    | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
+| Card and image feedback                  | `src/components/WallpaperCard.vue`, `src/components/WallpaperImage.vue`                                 | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Single-object modal                      | `src/components/WallpaperViewer.vue`                                                                    | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Download streaming limits                | `src/services/download.ts`                                                                              | `tests/unit/services.test.ts`, `tests/e2e/archive.spec.ts`        |
+| Request/empty/rate-limit presentation    | `src/components/ArchiveStatus.vue`, `src/composables/useRetryAfter.ts`                                  | `tests/unit/components.test.ts`, `tests/unit/composables.test.ts` |
+| Visual tokens and responsive layout      | `src/styles/tokens.css`, `src/styles/main.css`                                                          | `tests/e2e/archive.spec.ts`                                       |
+| Original font conversion                 | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                                                   | full source/output cmap equality in `scripts/build-fonts.py`      |
+| Project tooling and quality gates        | `.editorconfig`, `.gitattributes`, `vite.config.ts`, `playwright.config.ts`, `.github/workflows/ci.yml` | `npm run check`, `npm run test:coverage`, `npm run test:e2e`      |
 
 ## Data and state
 
@@ -30,9 +32,10 @@ days; an invalid date has an inline recovery state and is never sent to the API.
 Unknown paths redirect to `/`. The static host must serve `index.html` for SPA
 paths; configure this fallback in the deployment server.
 
-`useArchive` calls the v1 service and cancels superseded requests. Its sequence
-number also rejects late responses from a transport which ignores cancellation.
-The hero advances every 5 seconds while autoplay is active.
+`useArchive` calls the v1 service and cancels superseded requests for both the
+gallery and the hero. Its sequence numbers also reject late responses from a
+transport which ignores cancellation, so a stale retry cannot overwrite a newer
+result. The hero advances every 5 seconds while autoplay is active.
 Hero data is a separate, initial default-query snapshot (up to eight records),
 independent of gallery filtering. Gallery stores returned metadata and renders
 six records at a time; more reveals six additional keyed nodes. There are no
@@ -100,20 +103,23 @@ and Playwright Chromium end-to-end tests (`tests/e2e/`, run against the built pr
 server with mocked network routes).
 
 GitHub Actions runs these checks and the dependency audit through
-[ci.yml](../.github/workflows/ci.yml). Triggers, reports and failure handling are
-documented in [CI guide](ci.md).
+[ci.yml](../.github/workflows/ci.yml). The workflow file owns triggers, job
+definitions and report paths; `vite.config.ts` owns the coverage thresholds and
+`playwright.config.ts` owns the E2E artifact directory.
 
 ## Repository layout
 
 ```text
 wallpaper-web/
+├── .editorconfig             # Shared editor defaults
+├── .gitattributes            # Line endings and binary font assets
 ├── .github/workflows/ci.yml  # Automated checks, tests and dependency audit
 ├── README.md                 # Setup, development, verification and font tooling
+├── README.zh-CN.md           # Simplified Chinese translation of README.md
 ├── AGENTS.md                 # AI instructions and reference entry point
 ├── docs/
 │   ├── architecture.md       # Module ownership and data flow
-│   ├── code-standards.md      # Coding conventions
-│   └── ci.md                  # CI operation, reports and failure handling
+│   └── code-standards.md      # Coding conventions
 ├── src/
 │   ├── main.ts               # Bootstrap
 │   ├── App.vue
@@ -125,7 +131,7 @@ wallpaper-web/
 │   └── styles/               # Shared tokens and responsive styles
 ├── tests/
 │   ├── unit/                 # Service, composable and component unit tests
-│   └── e2e/                  # Playwright Chromium end-to-end tests
+│   └── e2e/                  # Playwright Chromium end-to-end tests and .results/
 ├── public/fonts/             # Font chunks, coverage and OFL license
 ├── scripts/build-fonts.py    # Font generation
 ├── .env.example              # Public configuration template

@@ -41,6 +41,23 @@ export function createAppI18n() {
   });
 }
 
+// Date labels repeat for every card, so reuse one formatter per locale.
+const dateFormatters = new Map<string, Intl.DateTimeFormat>();
+
+function dateFormatter(locale: string) {
+  let formatter = dateFormatters.get(locale);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
+    dateFormatters.set(locale, formatter);
+  }
+  return formatter;
+}
+
 export function useLocalization() {
   const { t, locale } = useI18n({ useScope: "global" });
   function setLocale(value: string) {
@@ -53,12 +70,7 @@ export function useLocalization() {
     }
   }
   function formatDate(date: string) {
-    return new Intl.DateTimeFormat(locale.value, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      timeZone: "UTC",
-    }).format(new Date(`${date}T00:00:00Z`));
+    return dateFormatter(locale.value).format(new Date(`${date}T00:00:00Z`));
   }
   function wallpaperTitle(wallpaper: Wallpaper) {
     return wallpaper.title || t("image.untitled", { date: formatDate(wallpaper.date) });
