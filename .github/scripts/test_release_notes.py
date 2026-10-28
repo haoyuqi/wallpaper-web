@@ -269,6 +269,38 @@ class ReleaseNotesTest(unittest.TestCase):
         self.assertEqual({'vue': {'before': '3.5.13', 'after': '3.6.0'}}, highlights['changed_direct_packages'])
         self.assertEqual({'before': '26.1.2', 'after': '26.2.0'}, highlights['node_version'])
 
+    def test_removed_npm_dependencies_are_reported(self):
+        manifests = {
+            ('new', 'package.json'): {'dependencies': {'vue': '^3.5'}},
+            ('old', 'package.json'): {'dependencies': {'vue': '^3.5', 'removed': '^1.0'}},
+            ('new', 'package-lock.json'): {'packages': {'node_modules/vue': {'version': '3.5.13'}}},
+            ('old', 'package-lock.json'): {'packages': {
+                'node_modules/vue': {'version': '3.5.13'},
+                'node_modules/removed': {'version': '1.0.0'},
+                'node_modules/transitive': {'version': '2.0.0'},
+            }},
+        }
+        with patch.object(notes, 'read_json_at', side_effect=lambda revision, path: manifests.get((revision, path))), \
+                patch.object(notes, 'workflow_highlights', return_value={}):
+            highlights = notes.version_highlights('old', 'new', ['package.json', 'package-lock.json'])
+        self.assertEqual({'removed': {'before': '^1.0', 'after': None}}, highlights['changed_requirements'])
+        self.assertEqual({'removed': {'before': '1.0.0', 'after': None}}, highlights['changed_direct_packages'])
+
+    def test_engines_and_package_manager_changes_are_reported(self):
+        manifests = {
+            ('old', 'package.json'): {'engines': {'node': '>=24', 'npm': '>=10'}},
+            ('new', 'package.json'): {'engines': {'node': '>=26'}, 'packageManager': 'npm@11'},
+        }
+        with patch.object(notes, 'read_json_at', side_effect=lambda revision, path: manifests.get((revision, path))), \
+                patch.object(notes, 'workflow_highlights', return_value={}):
+            highlights = notes.version_highlights('old', 'new', ['package.json'])
+        self.assertEqual({
+            'engines.node': {'before': '>=24', 'after': '>=26'},
+            'engines.npm': {'before': '>=10', 'after': None},
+            'packageManager': {'before': None, 'after': 'npm@11'},
+        }, highlights['runtime_requirements'])
+        self.assertNotIn('changed_requirements', highlights)
+
     def test_workflow_highlights_extract_runtime_and_coverage_values(self):
         workflow = "node-version: '^24.22.1'\nphp-version: '8.4'\nMIN_LINE_COVERAGE: '100'\n"
         with patch.object(notes, 'git', return_value=workflow):

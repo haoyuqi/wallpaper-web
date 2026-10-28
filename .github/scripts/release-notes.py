@@ -154,6 +154,32 @@ def workflow_highlights(revision, changed_paths):
     return highlights
 
 
+def compare_versions(before, current):
+    return {
+        name: {'before': before.get(name), 'after': current.get(name)}
+        for name in set(before) | set(current)
+        if before.get(name) != current.get(name)
+    }
+
+
+def package_runtime_requirements(before, current):
+    before = before if isinstance(before, dict) else {}
+    current = current if isinstance(current, dict) else {}
+    before_engines = before.get('engines') if isinstance(before.get('engines'), dict) else {}
+    current_engines = current.get('engines') if isinstance(current.get('engines'), dict) else {}
+    changes = {
+        f'engines.{name}': {'before': before_engines.get(name), 'after': current_engines.get(name)}
+        for name in set(before_engines) | set(current_engines)
+        if before_engines.get(name) != current_engines.get(name)
+    }
+    if before.get('packageManager') != current.get('packageManager'):
+        changes['packageManager'] = {
+            'before': before.get('packageManager'),
+            'after': current.get('packageManager'),
+        }
+    return changes
+
+
 def version_highlights(previous, sha, changed_paths):
     highlights = {}
     manifests = {}
@@ -169,44 +195,33 @@ def version_highlights(previous, sha, changed_paths):
         before, current = manifests['composer.json']
         before_require = before.get('require', {}) if isinstance(before, dict) else {}
         current_require = current.get('require', {}) if isinstance(current, dict) else {}
-        requirements.update({
-            name: {'before': before_require.get(name), 'after': value}
-            for name, value in current_require.items()
-            if not before or before_require.get(name) != value
-        })
+        requirements.update(compare_versions(before_require, current_require))
     if 'package.json' in manifests:
         before, current = manifests['package.json']
-        before_dependencies = npm_requirements(before)
-        current_dependencies = npm_requirements(current)
-        requirements.update({
-            name: {'before': before_dependencies.get(name), 'after': value}
-            for name, value in current_dependencies.items()
-            if not before or before_dependencies.get(name) != value
-        })
+        requirements.update(compare_versions(npm_requirements(before), npm_requirements(current)))
+        runtime_requirements = package_runtime_requirements(before, current)
+        if runtime_requirements:
+            highlights['runtime_requirements'] = runtime_requirements
     if requirements:
         highlights['changed_requirements'] = requirements
 
     packages = {}
     if 'composer.lock' in manifests:
         before, current = manifests['composer.lock']
-        manifest = read_json_at(sha, 'composer.json') or {}
-        before_versions = direct_dependency_versions(before, manifest)
-        current_versions = direct_dependency_versions(current, manifest)
-        packages.update({
-            name: {'before': before_versions.get(name), 'after': version}
-            for name, version in current_versions.items()
-            if not before or before_versions.get(name) != version
-        })
+        before_manifest = (read_json_at(previous, 'composer.json') if previous else None) or {}
+        current_manifest = read_json_at(sha, 'composer.json') or {}
+        packages.update(compare_versions(
+            direct_dependency_versions(before, before_manifest),
+            direct_dependency_versions(current, current_manifest),
+        ))
     if 'package-lock.json' in manifests:
         before, current = manifests['package-lock.json']
-        manifest = read_json_at(sha, 'package.json') or {}
-        before_versions = npm_direct_dependency_versions(before, manifest)
-        current_versions = npm_direct_dependency_versions(current, manifest)
-        packages.update({
-            name: {'before': before_versions.get(name), 'after': version}
-            for name, version in current_versions.items()
-            if not before or before_versions.get(name) != version
-        })
+        before_manifest = (read_json_at(previous, 'package.json') if previous else None) or {}
+        current_manifest = read_json_at(sha, 'package.json') or {}
+        packages.update(compare_versions(
+            npm_direct_dependency_versions(before, before_manifest),
+            npm_direct_dependency_versions(current, current_manifest),
+        ))
     if packages:
         highlights['changed_direct_packages'] = packages
 
@@ -310,9 +325,12 @@ def complete_once(base_url, token, model, system, user):
             body = response.read(MAX_RESPONSE + 1)
     except urllib.error.HTTPError as error:
         try:
-            detail = error.read(8192).lower()
-        except (http.client.HTTPException, ConnectionError):
-            detail = b''
+            try:
+                detail = error.read(8192).lower()
+            except (http.client.HTTPException, ConnectionError):
+                detail = b''
+        finally:
+            error.close()
         exhausted = any(word in detail for word in (b'daily', b'quota', b'budget', b'insufficient', b'exhaust', b'credit'))
         retryable = (error.code == 429 and not exhausted) or error.code in (500, 502, 503, 504)
         raise GenerationError(f'http_status_{error.code}', retryable=retryable) from None
