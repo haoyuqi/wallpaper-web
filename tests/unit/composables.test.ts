@@ -201,6 +201,56 @@ describe("useArchive state and concurrency", () => {
     rejectHero(new ApiError("server"));
     await flushPromises();
   });
+
+  it("keeps only the newest hero retry, discarding superseded responses and errors", async () => {
+    const date = ref<string | null>(null);
+    const pending: Array<{
+      resolve: (items: Wallpaper[]) => void;
+      reject: (reason: unknown) => void;
+    }> = [];
+    const signals: Array<AbortSignal | undefined> = [];
+    const loader = vi.fn((_query: WallpaperQuery, signal?: AbortSignal) => {
+      signals.push(signal);
+      return new Promise<Wallpaper[]>((resolve, reject) => pending.push({ resolve, reject }));
+    });
+
+    let archive!: ReturnType<typeof useArchive>;
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          archive = useArchive(date, loader);
+          return () => null;
+        },
+      }),
+    );
+
+    // Initial hero (0) and gallery (1) requests are both in flight.
+    expect(pending).toHaveLength(2);
+
+    const first = archive.reloadHero();
+    expect(signals[0]?.aborted).toBe(true);
+    const second = archive.reloadHero();
+    expect(signals[2]?.aborted).toBe(true);
+
+    pending[3]?.resolve([makeWallpaper("newest")]);
+    await second;
+    pending[2]?.resolve([makeWallpaper("stale")]);
+    await first;
+    expect(archive.hero.value).toEqual([makeWallpaper("newest")]);
+
+    const third = archive.reloadHero();
+    const fourth = archive.reloadHero();
+    expect(signals[4]?.aborted).toBe(true);
+    pending[5]?.resolve([makeWallpaper("final")]);
+    await fourth;
+    pending[4]?.reject(new ApiError("server"));
+    await third;
+    expect(archive.hero.value).toEqual([makeWallpaper("final")]);
+    expect(archive.heroError.value).toBeNull();
+    expect(archive.heroLoading.value).toBe(false);
+
+    wrapper.unmount();
+  });
 });
 
 describe("useCarousel 5-second timing and pause reasons", () => {
