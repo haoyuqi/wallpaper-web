@@ -230,6 +230,45 @@ class ReleaseNotesTest(unittest.TestCase):
             notes.direct_dependency_versions(lock, manifest),
         )
 
+    def test_only_direct_npm_dependencies_are_selected_from_lockfile(self):
+        manifest = {'dependencies': {'vue': '^3.5'}, 'devDependencies': {'vite': '^7'}}
+        lock = {
+            'lockfileVersion': 3,
+            'packages': {
+                '': {'dependencies': {'vue': '^3.5'}},
+                'node_modules/vue': {'version': '3.5.13'},
+                'node_modules/vite': {'version': '7.1.0'},
+                'node_modules/transitive': {'version': '1.0.0'},
+            },
+        }
+        self.assertEqual(
+            {'vue': '3.5.13', 'vite': '7.1.0'},
+            notes.npm_direct_dependency_versions(lock, manifest),
+        )
+
+    def test_workflow_highlights_read_node_version_file(self):
+        workflow = "node-version-file: '.node-version'\n"
+        with patch.object(notes, 'git', side_effect=[workflow, '26.1.2']):
+            self.assertEqual(
+                {'runtime_versions': {'node': ['26.1.2']}},
+                notes.workflow_highlights('sha', ['.github/workflows/ci.yml']),
+            )
+
+    def test_version_highlights_include_npm_and_node_versions(self):
+        manifests = {
+            ('new', 'package.json'): {'dependencies': {'vue': '^3.6'}},
+            ('old', 'package.json'): {'dependencies': {'vue': '^3.5'}},
+            ('new', 'package-lock.json'): {'packages': {'node_modules/vue': {'version': '3.6.0'}}},
+            ('old', 'package-lock.json'): {'packages': {'node_modules/vue': {'version': '3.5.13'}}},
+        }
+        with patch.object(notes, 'read_json_at', side_effect=lambda revision, path: manifests.get((revision, path))), \
+                patch.object(notes, 'read_text_at', side_effect=lambda revision, path: {'new': '26.2.0', 'old': '26.1.2'}.get(revision) if path == '.node-version' else None), \
+                patch.object(notes, 'workflow_highlights', return_value={}):
+            highlights = notes.version_highlights('old', 'new', ['package.json', 'package-lock.json', '.node-version'])
+        self.assertEqual({'vue': {'before': '^3.5', 'after': '^3.6'}}, highlights['changed_requirements'])
+        self.assertEqual({'vue': {'before': '3.5.13', 'after': '3.6.0'}}, highlights['changed_direct_packages'])
+        self.assertEqual({'before': '26.1.2', 'after': '26.2.0'}, highlights['node_version'])
+
     def test_workflow_highlights_extract_runtime_and_coverage_values(self):
         workflow = "node-version: '^24.22.1'\nphp-version: '8.4'\nMIN_LINE_COVERAGE: '100'\n"
         with patch.object(notes, 'git', return_value=workflow):

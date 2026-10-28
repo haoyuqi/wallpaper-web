@@ -2,11 +2,11 @@ name: Release
 
 on:
   push:
-    tags: ['v*']
+    tags: ["v*"]
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing vX.Y.Z tag to preview (never publishes)'
+        description: "Existing vX.Y.Z tag to preview (never publishes)"
         required: true
         type: string
 
