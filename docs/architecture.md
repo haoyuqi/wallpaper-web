@@ -103,8 +103,9 @@ and Playwright Chromium end-to-end tests (`tests/e2e/`, run against the built pr
 server with mocked network routes).
 
 GitHub Actions runs these checks and the dependency audit through
-[ci.yml](../.github/workflows/ci.yml). Triggers, reports and failure handling are
-documented in [CI guide](ci.md).
+[ci.yml](../.github/workflows/ci.yml). The workflow file owns triggers, job
+definitions and report paths; `vite.config.ts` owns the coverage thresholds and
+`playwright.config.ts` owns the E2E artifact directory.
 
 ## Repository layout
 
@@ -117,8 +118,7 @@ wallpaper-web/
 ├── AGENTS.md                 # AI instructions and reference entry point
 ├── docs/
 │   ├── architecture.md       # Module ownership and data flow
-│   ├── code-standards.md      # Coding conventions
-│   └── ci.md                  # CI operation, reports and failure handling
+│   └── code-standards.md      # Coding conventions
 ├── src/
 │   ├── main.ts               # Bootstrap
 │   ├── App.vue

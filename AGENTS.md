@@ -39,6 +39,20 @@ browser checks using the guidance in README.
 Report the checks actually performed, their results and any unverified scope.
 A successful build is not evidence of successful browser verification.
 
+## CI gates
+
+`.github/workflows/ci.yml` is the source of truth for triggers, jobs and report
+paths. Three rules are not visible in the source:
+
+- `CI result` is the only required branch-protection check. Any failed, cancelled
+  or skipped job fails it, so a re-run must be green before merging.
+- The dependency audit fails only on high or critical advisories, and an audit
+  service error also fails it. Never run `npm audit fix --force`; deferring an
+  advisory needs a documented reason and review date.
+- Dependabot auto-merge applies only to a non-draft pull request from this
+  repository targeting `main` with an npm patch update that changes only
+  `package.json` and `package-lock.json`. Everything else needs manual review.
+
 ## Git workflow
 
 - Use `main` as the default base and pull request target unless the user specifies otherwise. Make changes on a topic branch and merge through a pull request.
