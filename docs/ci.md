@@ -36,7 +36,7 @@ failures when reports were generated. Open the failed job's logs first, download
 the relevant artifact and reproduce with the command above. Playwright writes its
 HTML report and failure attachments under `tests/e2e/.results/`. For HTML reports,
 extract the artifact and run
-`npx --no-install playwright show-report /path/to/playwright-report`.
+`npx --no-install playwright show-report /path/to/tests/e2e/.results/playwright-report`.
 
 The coverage job includes every `src/**/*.{ts,vue}` file, including files not
 imported by a test. It enforces 100% statements, branches, functions and lines

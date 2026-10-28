@@ -7,20 +7,22 @@ required. There is no login, token storage, favorites or search in this version.
 
 ## Find the implementation
 
-| Feature                                | Owning source                                                           | Automated tests                                                   |
-| -------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Startup and routing                    | `src/main.ts`, `src/router.ts`, `src/App.vue`                           | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Interface languages and preference     | `src/i18n/`, `src/components/LanguageSelect.vue`, `src/App.vue`         | `tests/unit/i18n.test.ts`, `tests/e2e/archive.spec.ts`            |
-| Archive, date URL and six-card batches | `src/components/ArchivePage.vue`, `src/composables/useArchive.ts`       | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
-| API boundary and nullable fields       | `src/services/wallpapers.ts`                                            | `tests/unit/services.test.ts`                                     |
-| Calendar-only dates                    | `src/services/dates.ts`                                                 | `tests/unit/services.test.ts`                                     |
-| Hero controls and pause reasons        | `src/components/CoverCarousel.vue`, `src/composables/useCarousel.ts`    | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
-| Card and image feedback                | `src/components/WallpaperCard.vue`, `src/components/WallpaperImage.vue` | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Single-object modal                    | `src/components/WallpaperViewer.vue`                                    | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Download streaming limits              | `src/services/download.ts`                                              | `tests/unit/services.test.ts`, `tests/e2e/archive.spec.ts`        |
-| Request/empty/rate-limit presentation  | `src/components/ArchiveStatus.vue`, `src/composables/useRetryAfter.ts`  | `tests/unit/components.test.ts`, `tests/unit/composables.test.ts` |
-| Visual tokens and responsive layout    | `src/styles/tokens.css`, `src/styles/main.css`                          | `tests/e2e/archive.spec.ts`                                       |
-| Original font conversion               | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                   | full source/output cmap equality in `scripts/build-fonts.py`      |
+| Feature                                  | Owning source                                                                                           | Automated tests                                                   |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Startup and routing                      | `src/main.ts`, `src/router.ts`, `src/App.vue`                                                           | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Interface languages and preference       | `src/i18n/`, `src/components/LanguageSelect.vue`, `src/App.vue`                                         | `tests/unit/i18n.test.ts`, `tests/e2e/archive.spec.ts`            |
+| Archive, date URL and six-card batches   | `src/components/ArchivePage.vue`, `src/composables/useArchive.ts`                                       | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
+| Request lifecycle and retry cancellation | `src/composables/useArchive.ts`, `src/services/wallpapers.ts`                                           | `tests/unit/composables.test.ts`, `tests/unit/services.test.ts`   |
+| API boundary and nullable fields         | `src/services/wallpapers.ts`                                                                            | `tests/unit/services.test.ts`                                     |
+| Calendar-only dates                      | `src/services/dates.ts`                                                                                 | `tests/unit/services.test.ts`                                     |
+| Hero controls and pause reasons          | `src/components/CoverCarousel.vue`, `src/composables/useCarousel.ts`                                    | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
+| Card and image feedback                  | `src/components/WallpaperCard.vue`, `src/components/WallpaperImage.vue`                                 | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Single-object modal                      | `src/components/WallpaperViewer.vue`                                                                    | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Download streaming limits                | `src/services/download.ts`                                                                              | `tests/unit/services.test.ts`, `tests/e2e/archive.spec.ts`        |
+| Request/empty/rate-limit presentation    | `src/components/ArchiveStatus.vue`, `src/composables/useRetryAfter.ts`                                  | `tests/unit/components.test.ts`, `tests/unit/composables.test.ts` |
+| Visual tokens and responsive layout      | `src/styles/tokens.css`, `src/styles/main.css`                                                          | `tests/e2e/archive.spec.ts`                                       |
+| Original font conversion                 | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                                                   | full source/output cmap equality in `scripts/build-fonts.py`      |
+| Project tooling and quality gates        | `.editorconfig`, `.gitattributes`, `vite.config.ts`, `playwright.config.ts`, `.github/workflows/ci.yml` | `npm run check`, `npm run test:coverage`, `npm run test:e2e`      |
 
 ## Data and state
 
