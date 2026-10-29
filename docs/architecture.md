@@ -7,22 +7,22 @@ required. There is no login, token storage, favorites or search in this version.
 
 ## Find the implementation
 
-| Feature                                  | Owning source                                                                                           | Automated tests                                                   |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Startup and routing                      | `src/main.ts`, `src/router.ts`, `src/App.vue`                                                           | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Interface languages and preference       | `src/i18n/`, `src/components/LanguageSelect.vue`, `src/App.vue`                                         | `tests/unit/i18n.test.ts`, `tests/e2e/archive.spec.ts`            |
-| Archive, date URL and six-card batches   | `src/components/ArchivePage.vue`, `src/composables/useArchive.ts`                                       | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
-| Request lifecycle and retry cancellation | `src/composables/useArchive.ts`, `src/services/wallpapers.ts`                                           | `tests/unit/composables.test.ts`, `tests/unit/services.test.ts`   |
-| API boundary and nullable fields         | `src/services/wallpapers.ts`                                                                            | `tests/unit/services.test.ts`                                     |
-| Calendar-only dates                      | `src/services/dates.ts`                                                                                 | `tests/unit/services.test.ts`                                     |
-| Hero controls and pause reasons          | `src/components/CoverCarousel.vue`, `src/composables/useCarousel.ts`                                    | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
-| Card and image feedback                  | `src/components/WallpaperCard.vue`, `src/components/WallpaperImage.vue`                                 | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Single-object modal                      | `src/components/WallpaperViewer.vue`                                                                    | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Download streaming limits                | `src/services/download.ts`                                                                              | `tests/unit/services.test.ts`, `tests/e2e/archive.spec.ts`        |
-| Request/empty/rate-limit presentation    | `src/components/ArchiveStatus.vue`, `src/composables/useRetryAfter.ts`                                  | `tests/unit/components.test.ts`, `tests/unit/composables.test.ts` |
-| Visual tokens and responsive layout      | `src/styles/tokens.css`, `src/styles/main.css`                                                          | `tests/e2e/archive.spec.ts`                                       |
-| Original font conversion                 | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                                                   | full source/output cmap equality in `scripts/build-fonts.py`      |
-| Project tooling and quality gates        | `.editorconfig`, `.gitattributes`, `vite.config.ts`, `playwright.config.ts`, `.github/workflows/ci.yml` | `npm run check`, `npm run test:coverage`, `npm run test:e2e`      |
+| Feature                                  | Owning source                                                                                                                            | Automated tests                                                   |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Startup and routing                      | `src/main.ts`, `src/router.ts`, `src/App.vue`                                                                                            | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Interface languages and preference       | `src/i18n/`, `src/components/LanguageSelect.vue`, `src/App.vue`                                                                          | `tests/unit/i18n.test.ts`, `tests/e2e/archive.spec.ts`            |
+| Archive, date URL and six-card batches   | `src/components/ArchivePage.vue`, `src/composables/useArchive.ts`                                                                        | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
+| Request lifecycle and retry cancellation | `src/composables/useArchive.ts`, `src/services/wallpapers.ts`                                                                            | `tests/unit/composables.test.ts`, `tests/unit/services.test.ts`   |
+| API boundary and nullable fields         | `src/services/wallpapers.ts`                                                                                                             | `tests/unit/services.test.ts`                                     |
+| Calendar-only dates                      | `src/services/dates.ts`                                                                                                                  | `tests/unit/services.test.ts`                                     |
+| Hero controls and pause reasons          | `src/components/CoverCarousel.vue`, `src/composables/useCarousel.ts`                                                                     | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
+| Card and image feedback                  | `src/components/WallpaperCard.vue`, `src/components/WallpaperImage.vue`                                                                  | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Single-object modal                      | `src/components/WallpaperViewer.vue`                                                                                                     | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
+| Download streaming limits                | `src/services/download.ts`                                                                                                               | `tests/unit/services.test.ts`, `tests/e2e/archive.spec.ts`        |
+| Request/empty/rate-limit presentation    | `src/components/ArchiveStatus.vue`, `src/composables/useRetryAfter.ts`                                                                   | `tests/unit/components.test.ts`, `tests/unit/composables.test.ts` |
+| Visual tokens and responsive layout      | `src/styles/tokens.css`, `src/styles/main.css`                                                                                           | `tests/e2e/archive.spec.ts`                                       |
+| Original font conversion                 | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                                                                                    | full source/output cmap equality in `scripts/build-fonts.py`      |
+| Project tooling and quality gates        | `.editorconfig`, `.gitattributes`, `vite.config.ts`, `playwright.config.ts`, `.github/workflows/ci.yml`, `.github/workflows/release.yml` | `npm run check`, `npm run test:coverage`, `npm run test:e2e`      |
 
 ## Data and state
 
@@ -107,6 +107,29 @@ GitHub Actions runs these checks and the dependency audit through
 definitions and report paths; `vite.config.ts` owns the coverage thresholds and
 `playwright.config.ts` owns the E2E artifact directory.
 
+- Tagging a commit reachable from `main` with a canonical `vX.Y.Z` tag runs
+  [.github/workflows/release.yml](../.github/workflows/release.yml): it validates
+  tag ancestry, runs [.github/workflows/ci.yml](../.github/workflows/ci.yml)
+  on the tagged commit, generates bilingual release notes via
+  `.github/scripts/release-notes.py`, and publishes the GitHub release once all
+  checks pass. Generation starts after CI succeeds. Sources are the complete
+  titles and descriptions of merged PRs associated with commits in the actual
+  tag range, plus full messages of unmatched commits, including merges. PRs
+  are deduplicated; sources are neither compressed nor truncated. One model
+  request produces structured English and Chinese entries. Local checks require
+  valid structure, nonempty bilingual text and coverage of every source ID; they
+  do not establish semantic correctness. The program renders source links and
+  exact added, changed or removed Node engine/packageManager runtime constraints.
+  DNS/connect failures, HTTP 429 rate limits and HTTP 500/502/503/504 responses
+  get at most three attempts with 2- and 4-second backoff; exhausted quotas,
+  authentication errors, timeouts, incomplete responses and invalid generated
+  content are not retried. Missing configuration or any generation/validation
+  failure stops publication; there is no fallback or second AI review call.
+  Requests exceeding the existing 1,000,000-byte transport limit fail without
+  shortening sources. Public failure logs contain generic notices only.
+  Manual `workflow_dispatch` runs skip CI and generate the `release-notes`
+  artifact for preview without publishing.
+
 ## Repository layout
 
 ```text
@@ -114,6 +137,7 @@ wallpaper-web/
 ├── .editorconfig             # Shared editor defaults
 ├── .gitattributes            # Line endings and binary font assets
 ├── .github/workflows/ci.yml  # Automated checks, tests and dependency audit
+├── .github/workflows/release.yml # Tag-triggered release automation
 ├── README.md                 # Setup, development, verification and font tooling
 ├── README.zh-CN.md           # Simplified Chinese translation of README.md
 ├── AGENTS.md                 # AI instructions and reference entry point
