@@ -458,8 +458,16 @@ class WorkflowTest(unittest.TestCase):
                          .replace('||', 'or'))
             self.assertEqual(expected, eval(condition, {'__builtins__': {}}, {}))
         publish = text.split('  publish:\n', 1)[1]
-        self.assertIn('needs: [validate, checks, notes]', publish)
+        self.assertIn('needs: [validate, checks, notes, publish-image]', publish)
         self.assertIn("if: github.event_name == 'push'", publish)
+        image = text.split('  publish-image:\n', 1)[1].split('  publish:\n', 1)[0]
+        self.assertIn('needs: [validate, checks, notes]', image)
+        self.assertIn('platforms: linux/amd64,linux/arm64', image)
+        self.assertIn('packages: write', image)
+        self.assertIn("grep -Eiq 'not found|manifest unknown|name unknown|404'", image)
+        self.assertIn('Verify published architectures', image)
+        self.assertIn('Existing release image differs from this commit', image)
+        self.assertIn('index:org.opencontainers.image.revision=', image)
 
 
 class TagValidationTest(unittest.TestCase):

@@ -67,13 +67,24 @@ npx playwright install chromium
 
 Unit and component tests run in `happy-dom` through `vp test`; Playwright drives headless Chromium against the production preview build with the API and image requests mocked, so no backend or live external service is required.
 
-Coverage covers every `src/**/*.{ts,vue}` module and must stay at 100% for statements, branches, functions and lines. CI also checks formatting, lint and types, builds the bundle, and runs a dependency audit that fails on high or critical advisories.
+Coverage covers every `src/**/*.{ts,vue}` module and must stay at 100% for statements, branches, functions and lines. CI also checks formatting, lint and types, builds the bundle, runs a dependency audit that fails on high or critical advisories, and builds and smoke-tests the container on amd64 and arm64.
 
 Playwright writes its HTML report and failure attachments under `tests/e2e/.results/`.
 
 ## Deployment
 
-The production artifact is `dist/`, a static single-page application. The development API proxy does not ship with it. Configure a public `VITE_API_BASE_URL` at build time, or put a same-origin API reverse proxy in front of the static host, and make the host serve `index.html` for unknown paths so client-side routing keeps working.
+The production artifact is `dist/`, a static single-page application. The development API proxy does not ship with `dist/`. For a custom static host, configure the public `VITE_API_BASE_URL` at build time or add your own same-origin API proxy, and serve `index.html` for unknown paths.
+
+The [production image](Dockerfile) bundles the static build with an Nginx server on port 8080. It serves the SPA and forwards `/api/` to the origin in `API_UPSTREAM` (default `http://wallpaper-api:8080`). Change this variable when starting a container to connect the **same image** to a different API; no Node.js installation or rebuild is needed on the host. The browser stays on the frontend origin and does not receive this variable. Use an HTTP(S) origin without a trailing slash or path; the API must be reachable from the container's Docker network. For example:
+
+```sh
+docker run --rm --name wallpaper-web --network wallpaper \
+  -p 8080:8080 \
+  -e API_UPSTREAM=http://wallpaper-api:8080 \
+  ghcr.io/haoyuqi/wallpaper-web:latest
+```
+
+`GET /healthz` checks the static web server. Check a real `GET /api/v1/wallpapers?date=YYYY-MM-DD` to verify the upstream; `/healthz` does not check API availability. Keep the API port private behind the web proxy, and place TLS at the public ingress. Version tags such as `vX.Y.Z` can replace `latest` for controlled upgrades and rollback. Release images are published only after quality and both architecture smoke checks pass; already published version tags are not overwritten. A newly created GHCR package may need its visibility set to public before anonymous users can pull it. The separate Wallpaper API repository owns the combined Wallpaper Web/API Compose setup.
 
 ## Manual browser checks
 

@@ -160,10 +160,31 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
 
+  container-smoke:
+    name: Container smoke (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            arch: amd64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build the production image
+        run: docker build --platform linux/${{ matrix.arch }} --tag wallpaper-web:ci .
+      - name: Check static serving and deployment-time API selection
+        run: bash .github/scripts/smoke-container.sh wallpaper-web:ci
+
   ci:
     name: CI result
     if: ${{ always() }}
-    needs: [release-script-tests, check, unit-tests, build-and-e2e, dependency-audit]
+    needs: [release-script-tests, check, unit-tests, build-and-e2e, dependency-audit, container-smoke]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -193,13 +214,15 @@ jobs:
           UNIT_RESULT: ${{ needs.unit-tests.result }}
           E2E_RESULT: ${{ needs.build-and-e2e.result }}
           AUDIT_RESULT: ${{ needs.dependency-audit.result }}
+          CONTAINER_RESULT: ${{ needs.container-smoke.result }}
         run: |
           echo "Release script tests: $SCRIPT_RESULT"
           echo "Check: $CHECK_RESULT"
           echo "Unit tests: $UNIT_RESULT"
           echo "Build and E2E: $E2E_RESULT"
           echo "Dependency audit: $AUDIT_RESULT"
-          for result in "$SCRIPT_RESULT" "$CHECK_RESULT" "$UNIT_RESULT" "$E2E_RESULT" "$AUDIT_RESULT"; do
+          echo "Container smoke: $CONTAINER_RESULT"
+          for result in "$SCRIPT_RESULT" "$CHECK_RESULT" "$UNIT_RESULT" "$E2E_RESULT" "$AUDIT_RESULT" "$CONTAINER_RESULT"; do
             if [[ "$result" != "success" ]]; then
               echo "::error::Every required job must succeed."
               exit 1
