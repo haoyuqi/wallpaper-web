@@ -23,7 +23,7 @@ required. There is no login, token storage, favorites or search in this version.
 | Visual tokens and responsive layout      | `src/styles/tokens.css`, `src/styles/main.css`                                                                                           | `tests/e2e/archive.spec.ts`                                       |
 | Original font conversion                 | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                                                                                    | full source/output cmap equality in `scripts/build-fonts.py`      |
 | Project tooling and quality gates        | `.editorconfig`, `.gitattributes`, `vite.config.ts`, `playwright.config.ts`, `.github/workflows/ci.yml`, `.github/workflows/release.yml` | `npm run check`, `npm run test:coverage`, `npm run test:e2e`      |
-| Container and runtime API proxy          | `Dockerfile`, `docker/default.conf.template`, `.dockerignore`                                                                           | `.github/scripts/smoke-container.sh`, dual-architecture CI job   |
+| Container and runtime API proxy          | `Dockerfile`, `docker/default.conf.template`, `.dockerignore`                                                                            | `.github/scripts/smoke-container.sh`, dual-architecture CI job    |
 
 ## Data and state
 

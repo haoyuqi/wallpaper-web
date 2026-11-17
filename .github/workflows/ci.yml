@@ -184,7 +184,8 @@ jobs:
   ci:
     name: CI result
     if: ${{ always() }}
-    needs: [release-script-tests, check, unit-tests, build-and-e2e, dependency-audit, container-smoke]
+    needs:
+      [release-script-tests, check, unit-tests, build-and-e2e, dependency-audit, container-smoke]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
