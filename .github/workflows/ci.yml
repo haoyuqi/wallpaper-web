@@ -149,8 +149,17 @@ jobs:
         run: |
           npm_spec=$(node -p "require('./package.json').packageManager")
           npm install --global "$npm_spec" --no-audit --no-fund
-      - name: Audit locked production and development dependencies
-        run: npm audit --package-lock-only --include=dev --audit-level=high --json | tee dependency-audit.json
+      - name: Install OSV-Scanner
+        env:
+          OSV_SCANNER_VERSION: v2.7.1
+          OSV_SCANNER_SHA256: fb7dab19a8bd9bbe5c3189f09d4b7ee1820c9553a23bac202648a56efd2f6ee8
+        run: |
+          curl -sSLo "$RUNNER_TEMP/osv-scanner" "https://github.com/google/osv-scanner/releases/download/${OSV_SCANNER_VERSION}/osv-scanner_linux_amd64"
+          echo "${OSV_SCANNER_SHA256}  $RUNNER_TEMP/osv-scanner" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/osv-scanner"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Scan dependencies with OSV-Scanner
+        run: osv-scanner scan --lockfile package-lock.json --config osv-scanner.toml --format json --output-file dependency-audit.json
       - name: Upload dependency audit report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

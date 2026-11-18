@@ -46,9 +46,11 @@ paths. Three rules are not visible in the source:
 
 - `CI result` is the only required branch-protection check. Any failed, cancelled
   or skipped job fails it, so a re-run must be green before merging.
-- The dependency audit fails only on high or critical advisories, and an audit
-  service error also fails it. Never run `npm audit fix --force`; deferring an
-  advisory needs a documented reason and review date.
+- The dependency audit uses OSV-Scanner against `package-lock.json`, and any
+  advisory that is not exempted in `osv-scanner.toml` fails it. Every exemption
+  needs a `reason` and an `effectiveUntil` review date. Never run
+  `npm audit fix --force`; deferring an advisory needs a documented reason and
+  review date.
 - Dependabot auto-merge applies only to a non-draft pull request from this
   repository targeting `main` with an npm patch update that changes only
   `package.json` and `package-lock.json`. Everything else needs manual review.

@@ -1,0 +1,17 @@
+# Advisories reported by OSV-Scanner when this file was introduced. Each entry
+# expires automatically; re-review before that date.
+
+[[IgnoredVulns]]
+id = "GHSA-fc5q-39xc-vjpf"
+effectiveUntil = 2026-12-18
+reason = "picomatch 4.0.7 is the newest release and the advisory lists no patched version; it reaches only build and test tooling."
+
+[[IgnoredVulns]]
+id = "GHSA-3g3m-2fjr-6pw4"
+effectiveUntil = 2026-12-18
+reason = "glob 13 (via @vue/test-utils -> js-beautify) has no fixed release; OSV-Scanner has no severity threshold, so this moderate entry is deferred to keep the gate green."
+
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+effectiveUntil = 2026-12-18
+reason = "minimatch 10 (via @vue/test-utils -> js-beautify) has no fixed release in that line; deferred for the same reason."

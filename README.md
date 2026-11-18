@@ -67,7 +67,7 @@ npx playwright install chromium
 
 Unit and component tests run in `happy-dom` through `vp test`; Playwright drives headless Chromium against the production preview build with the API and image requests mocked, so no backend or live external service is required.
 
-Coverage covers every `src/**/*.{ts,vue}` module and must stay at 100% for statements, branches, functions and lines. CI also checks formatting, lint and types, builds the bundle, and runs a dependency audit that fails on high or critical advisories.
+Coverage covers every `src/**/*.{ts,vue}` module and must stay at 100% for statements, branches, functions and lines. CI also checks formatting, lint and types, builds the bundle, and runs a dependency audit with OSV-Scanner that fails on any advisory not exempted in `osv-scanner.toml`.
 
 Playwright writes its HTML report and failure attachments under `tests/e2e/.results/`.
 
