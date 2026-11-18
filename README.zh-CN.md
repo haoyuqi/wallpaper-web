@@ -67,7 +67,7 @@ npx playwright install chromium
 
 单元与组件测试通过 `vp test` 在 `happy-dom` 中运行；Playwright 驱动无头 Chromium 针对生产预览构建运行，API 与图片请求均已 mock，因此不需要后端或真实外部服务。
 
-覆盖率统计覆盖每个 `src/**/*.{ts,vue}` 模块，statements、branches、functions、lines 必须全部保持 100%。CI 还会检查格式、静态规则与类型，构建产物，运行依赖审计（出现 high 或 critical 级漏洞即失败），并在 amd64 和 arm64 上构建、验证容器。
+覆盖率统计覆盖每个 `src/**/*.{ts,vue}` 模块，statements、branches、functions、lines 必须全部保持 100%。CI 检查格式、静态规则与类型，构建产物，使用 OSV-Scanner 审计依赖（任何未被 `osv-scanner.toml` 豁免的公告都会导致失败），并在 amd64 和 arm64 上构建、验证容器。
 
 Playwright 的 HTML 报告与失败附件输出到 `tests/e2e/.results/`。
 
