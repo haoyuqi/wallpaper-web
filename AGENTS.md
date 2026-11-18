@@ -49,8 +49,8 @@ paths. Three rules are not visible in the source:
 - The dependency audit uses OSV-Scanner against `package-lock.json`, and any
   advisory that is not exempted in `osv-scanner.toml` fails it. Every exemption
   needs a `reason` and an `effectiveUntil` review date. Never run
-  `npm audit fix --force`; deferring an advisory needs a documented reason and
-  review date.
+  `npm audit fix --force`; resolve an advisory by upgrading the package or by a
+  reviewed `overrides` entry.
 - Dependabot auto-merge applies only to a non-draft pull request from this
   repository targeting `main` with an npm patch update that changes only
   `package.json` and `package-lock.json`. Everything else needs manual review.
