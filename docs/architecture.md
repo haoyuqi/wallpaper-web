@@ -103,9 +103,10 @@ and Playwright Chromium end-to-end tests (`tests/e2e/`, run against the built pr
 server with mocked network routes).
 
 GitHub Actions runs these checks and the dependency audit through
-[ci.yml](../.github/workflows/ci.yml). The workflow file owns triggers, job
-definitions and report paths; `vite.config.ts` owns the coverage thresholds and
-`playwright.config.ts` owns the E2E artifact directory.
+[ci.yml](../.github/workflows/ci.yml). The audit runs OSV-Scanner against
+`package-lock.json` and reads its deferrals from `osv-scanner.toml`; the workflow
+file owns triggers, job definitions and report paths, `vite.config.ts` owns the
+coverage thresholds and `playwright.config.ts` owns the E2E artifact directory.
 
 - Tagging a commit reachable from `main` with a canonical `vX.Y.Z` tag runs
   [.github/workflows/release.yml](../.github/workflows/release.yml): it validates
@@ -160,6 +161,7 @@ wallpaper-web/
 ├── scripts/build-fonts.py    # Font generation
 ├── .env.example              # Public configuration template
 ├── index.html
+├── osv-scanner.toml          # Deferred OSV advisories with review dates
 ├── package.json
 ├── package-lock.json
 ├── playwright.config.ts      # Playwright E2E configuration
