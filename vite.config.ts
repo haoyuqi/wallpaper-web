@@ -1,11 +1,44 @@
-import { defineConfig, loadEnv } from "vite-plus";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { defineConfig, loadEnv, type Plugin } from "vite-plus";
 import vue from "@vitejs/plugin-vue";
 
-export default defineConfig(({ mode }) => {
+function fileHash(path: string): string {
+  return createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 8);
+}
+
+function fontAssetVersioning(root: string): Plugin {
+  return {
+    name: "font-asset-versioning",
+    transformIndexHtml(html) {
+      const cssHash = fileHash(resolve(root, "public/fonts/wenkai.css"));
+      const primaryChunkHash = fileHash(resolve(root, "public/fonts/wenkai-000.woff2"));
+      const preload = `<link rel="preload" href="/fonts/wenkai-000.woff2?v=${primaryChunkHash}" as="font" type="font/woff2" crossorigin />`;
+      const stylesheet = `<link rel="stylesheet" href="/fonts/wenkai.css?v=${cssHash}" />`;
+      return html.replace(
+        '<link rel="stylesheet" href="/fonts/wenkai.css" />',
+        `${preload}\n    ${stylesheet}`,
+      );
+    },
+  };
+}
+
+export default defineConfig(({ command, mode }) => {
   // Only the dev proxy target is read here; VITE_* values are handled by Vite itself.
   const env = loadEnv(mode, process.cwd(), "API_");
+  const isBuild = command === "build";
   return {
-    plugins: [vue()],
+    plugins: [vue(), fontAssetVersioning(process.cwd())],
+    define: isBuild
+      ? {
+          __VUE_OPTIONS_API__: false,
+          __VUE_PROD_DEVTOOLS__: false,
+          __VUE_I18N_FULL_INSTALL__: false,
+          __VUE_I18N_LEGACY_API__: false,
+          __INTLIFY_PROD_DEVTOOLS__: false,
+        }
+      : undefined,
     server: {
       host: "127.0.0.1",
       port: 5174,

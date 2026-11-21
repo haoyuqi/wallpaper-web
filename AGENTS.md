@@ -62,6 +62,7 @@ paths. Three rules are not visible in the source:
 - Commit messages and pull request titles use `type(scope): summary`. Supported types are `feat`, `fix`, `docs`, `chore`, `refactor`, `perf`, `style` and `test`. The scope is optional; use the affected area when useful, such as `archive`, `viewer`, `fonts` or `deps`.
 - Write the summary in English using the imperative mood, start with a lowercase letter and omit the trailing period. Keep the full subject within 72 characters. Example: `feat(archive): add wallpaper browsing and date filtering`.
 - Keep commits focused. Use the body to explain non-obvious rationale, link related issues and record verification results for substantial changes.
+- Write pull request descriptions following [.github/pull_request_template.md](.github/pull_request_template.md) (`Summary`, `Upgrade impact`, and `Verification`, including any unverified scope). Merged PR titles and bodies are used directly as source material for automated release notes.
 - Before committing code changes, run `npm test`, `npm run check` and `npm run build`. Perform relevant browser checks for interaction or layout changes. For documentation-only changes, check formatting, links and factual accuracy.
 - Review the files being staged, including untracked files. Never stage credentials, local environment files, dependency directories or generated build outputs.
 - Commit, push and merge only when authorized by the user.
