@@ -98,7 +98,7 @@ The font assets are licensed under `public/fonts/OFL.txt`. Regeneration is optio
 python3 scripts/build-fonts.py /path/to/LXGWWenKai-Regular.ttf
 ```
 
-The original LXGW WenKai Regular v1.530 TTF is a design source and must be supplied separately; the included WOFF2 chunks are enough to build and run the app. The script verifies the full character map against the source. Regenerate the priority subset after changing fixed interface text; every source character stays covered either way.
+The original LXGW WenKai Regular v1.530 TTF is a design source and must be supplied separately; the included WOFF2 chunks are enough to build and run the app. The script verifies the full character map against the source, collapses contiguous `unicode-range` spans and stamps each chunk URL with an 8-character content hash for cache busting. Run `npm run format` after regeneration so `public/fonts/wenkai.css` matches repository formatting. Regenerate the priority subset after changing fixed interface text; every source character stays covered either way.
 
 ## License
 

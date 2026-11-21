@@ -98,7 +98,7 @@ docker run --rm --name wallpaper-web --network wallpaper \
 python3 scripts/build-fonts.py /path/to/LXGWWenKai-Regular.ttf
 ```
 
-原始 LXGW WenKai Regular v1.530 TTF 是设计源文件，需要另行准备；仓库自带的 WOFF2 分片足以构建和运行应用。脚本会校验完整的字符映射与源文件一致。改动固定界面文案后，可重新生成优先子集；无论是否重新生成，源字符始终完整覆盖。
+原始 LXGW WenKai Regular v1.530 TTF 是设计源文件，需要另行准备；仓库自带的 WOFF2 分片足以构建和运行应用。脚本会校验完整的字符映射与源文件一致，折叠连续的 `unicode-range` 区间，并为每个分片 URL 附加 8 位内容哈希以便穿透长效缓存。重新生成后运行 `npm run format` 使 `public/fonts/wenkai.css` 符合仓库格式。改动固定界面文案后，可重新生成优先子集；无论是否重新生成，源字符始终完整覆盖。
 
 ## 许可证
 

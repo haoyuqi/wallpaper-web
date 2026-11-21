@@ -8,6 +8,8 @@ import {
 } from "../services/wallpapers";
 
 type Loader = typeof loadWallpapers;
+type Cancelable = { abort: () => void };
+
 export function useArchive(date: Ref<string | null>, loader: Loader = loadWallpapers) {
   const items = shallowRef<Wallpaper[]>([]);
   const hero = shallowRef<Wallpaper[]>([]);
@@ -18,19 +20,20 @@ export function useArchive(date: Ref<string | null>, loader: Loader = loadWallpa
   const count = ref(6);
   const loadedQuery = shallowRef<WallpaperQuery>(recentRange());
   let request = 0;
-  let active: AbortController | undefined;
+  let active: Cancelable | undefined;
   let heroRequest = 0;
-  let heroActive: AbortController | undefined;
+  let heroActive: Cancelable | undefined;
   let disposed = false;
   async function load() {
     const number = ++request;
     active?.abort();
-    active = new AbortController();
+    const controller = new AbortController();
+    active = controller;
     const query: WallpaperQuery = date.value ? { date: date.value } : recentRange();
     loading.value = true;
     error.value = null;
     try {
-      const result = await loader(query, active.signal);
+      const result = await loader(query, controller.signal);
       if (number !== request || disposed) return;
       items.value = result;
       count.value = 6;
@@ -45,11 +48,12 @@ export function useArchive(date: Ref<string | null>, loader: Loader = loadWallpa
   async function reloadHero() {
     const number = ++heroRequest;
     heroActive?.abort();
-    heroActive = new AbortController();
+    const controller = new AbortController();
+    heroActive = controller;
     heroLoading.value = true;
     heroError.value = null;
     try {
-      const result = await loader(recentRange(), heroActive.signal);
+      const result = await loader(recentRange(), controller.signal);
       if (number !== heroRequest || disposed) return;
       hero.value = result.slice(0, 8);
     } catch (failure) {
@@ -59,14 +63,53 @@ export function useArchive(date: Ref<string | null>, loader: Loader = loadWallpa
       if (number === heroRequest && !disposed) heroLoading.value = false;
     }
   }
-  void reloadHero();
-  watch(
-    date,
-    () => {
-      void load();
-    },
-    { immediate: true },
-  );
+  async function loadSharedDefault() {
+    const galleryNumber = ++request;
+    const heroNum = ++heroRequest;
+    const controller = new AbortController();
+    let owners = 2;
+    const release = () => {
+      if (--owners === 0) controller.abort();
+    };
+    active = { abort: release };
+    heroActive = { abort: release };
+    const query = recentRange();
+    loading.value = true;
+    heroLoading.value = true;
+    error.value = null;
+    heroError.value = null;
+    try {
+      const result = await loader(query, controller.signal);
+      if (disposed) return;
+      if (galleryNumber === request) {
+        items.value = result;
+        count.value = 6;
+        loadedQuery.value = query;
+      }
+      if (heroNum === heroRequest) {
+        hero.value = result.slice(0, 8);
+      }
+    } catch (failure) {
+      if (disposed) return;
+      const apiError = failure instanceof ApiError ? failure : new ApiError("network");
+      if (galleryNumber === request) error.value = apiError;
+      if (heroNum === heroRequest) heroError.value = apiError;
+    } finally {
+      if (!disposed) {
+        if (galleryNumber === request) loading.value = false;
+        if (heroNum === heroRequest) heroLoading.value = false;
+      }
+    }
+  }
+  if (date.value) {
+    void reloadHero();
+    void load();
+  } else {
+    void loadSharedDefault();
+  }
+  watch(date, () => {
+    void load();
+  });
   onScopeDispose(() => {
     disposed = true;
     request++;

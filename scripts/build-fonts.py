@@ -2,9 +2,28 @@
 Run with project-scoped fonttools+brotli; input TTF is a CLI argument, not shipped.
 """
 import argparse
+import hashlib
 from pathlib import Path
 from fontTools import subset
 from fontTools.ttLib import TTFont
+
+# Characters emitted dynamically by Intl.DateTimeFormat or typography helpers
+# that do not appear verbatim in src/.
+DYNAMIC_UI_CHARS = '年月日—–·…©，。：（）'
+
+
+def format_unicode_ranges(points: list[int]) -> str:
+    ranges: list[str] = []
+    start = prev = points[0]
+    for point in points[1:]:
+        if point == prev + 1:
+            prev = point
+            continue
+        ranges.append(f'U+{start:X}' if start == prev else f'U+{start:X}-{prev:X}')
+        start = prev = point
+    ranges.append(f'U+{start:X}' if start == prev else f'U+{start:X}-{prev:X}')
+    return ','.join(ranges)
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('source', type=Path)
@@ -16,7 +35,7 @@ codepoints = sorted(source.getBestCmap())
 version = source['name'].getDebugName(5)
 source.close()
 ui_text = ''.join(path.read_text() for path in Path('src').rglob('*') if path.suffix in {'.vue', '.ts', '.css'})
-priority = set(range(0x250)) | {ord(char) for char in ui_text}
+priority = set(range(0x250)) | {ord(char) for char in ui_text + DYNAMIC_UI_CHARS}
 first = [point for point in codepoints if point in priority]
 rest = [point for point in codepoints if point not in priority]
 chunks = [first] + [rest[i:i + 512] for i in range(0, len(rest), 512)]
@@ -31,14 +50,21 @@ for index, points in enumerate(chunks):
     worker.subset(font)
     font.flavor = 'woff2'
     name = f'wenkai-{index:03}.woff2'
-    font.save(args.out / name)
+    target = args.out / name
+    font.save(target)
     covered.update(font.getBestCmap())
     font.close()
-    ranges = ','.join(f'U+{point:X}' for point in points)
+    digest = hashlib.sha256(target.read_bytes()).hexdigest()[:8]
+    ranges = format_unicode_ranges(points)
     css.append('@font-face{font-family:"LXGW WenKai";font-style:normal;font-weight:400;font-display:swap;'
-               f'src:url("./{name}") format("woff2");unicode-range:{ranges};}}')
+               f'src:url("./{name}?v={digest}") format("woff2");unicode-range:{ranges};}}')
 if covered != set(codepoints):
     raise RuntimeError('Unicode coverage differs from source')
+# Remove stale chunk files if chunk count shrinks.
+expected_chunks = {f'wenkai-{index:03}.woff2' for index in range(len(chunks))}
+for stale in args.out.glob('wenkai-*.woff2'):
+    if stale.name not in expected_chunks:
+        stale.unlink()
 (args.out / 'wenkai.css').write_text('\n'.join(css) + '\n')
 (args.out / 'coverage.txt').write_text(f'{version}\nSource characters: {len(codepoints)}\nOutput characters: {len(covered)}\nWOFF2 chunks: {len(chunks)}\n')
 print((args.out / 'coverage.txt').read_text())

@@ -78,11 +78,21 @@ test.describe("Wallpaper archive E2E flows", () => {
     page,
   }) => {
     await mockWallpaperNetwork(page);
+    const apiRequests: string[] = [];
+    const fontRequests: string[] = [];
+    page.on("request", (request) => {
+      const url = request.url();
+      if (url.includes("/api/v1/wallpapers")) apiRequests.push(url);
+      if (url.includes("/fonts/wenkai-") && url.includes(".woff2")) fontRequests.push(url);
+    });
     await page.goto("/");
 
     await expect(page.locator("#cover-title")).toHaveText("Alpine Ridge 1");
     await expect(page.locator("#cover-position")).toHaveText("01 / 08");
     await expect(page.locator(".wallpaper-card")).toHaveCount(6);
+    expect(apiRequests).toHaveLength(1);
+    expect(fontRequests).toHaveLength(1);
+    expect(fontRequests[0]).toMatch(/\/fonts\/wenkai-000\.woff2\?v=[0-9a-f]{8}$/);
 
     const loadMoreBtn = page.getByRole("button", { name: "加载更多" });
     await loadMoreBtn.focus();
@@ -145,7 +155,7 @@ test.describe("Wallpaper archive E2E flows", () => {
       const url = new URL(route.request().url());
       const from = url.searchParams.get("from");
       const to = url.searchParams.get("to");
-      if (attempts <= 2) {
+      if (attempts === 1) {
         await route.fulfill({
           status: 429,
           contentType: "application/json",

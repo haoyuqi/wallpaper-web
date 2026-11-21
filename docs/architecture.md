@@ -34,7 +34,10 @@ Unknown paths redirect to `/`. The static host must serve `index.html` for SPA
 paths; configure this fallback in the deployment server.
 
 `useArchive` calls the v1 service and cancels superseded requests for both the
-gallery and the hero. Its sequence numbers also reject late responses from a
+gallery and the hero. When the page opens without a `date` query, hero and
+gallery share one initial 30-day request and keep independent cancellation
+handles so superseding one consumer does not abort the other while it is still
+waiting. Its sequence numbers also reject late responses from a
 transport which ignores cancellation, so a stale retry cannot overwrite a newer
 result. The hero advances every 5 seconds while autoplay is active.
 Hero data is a separate, initial default-query snapshot (up to eight records),
@@ -97,8 +100,12 @@ responsive layout and component styling are in `src/styles/main.css` and the
 Vue components. The current interface uses a cinema layout, warm linen palette
 and LXGW WenKai font. This repository contains the runtime UI and its assets.
 Font chunks preserve the original v1.530 outlines and full Unicode cmap. A
-small priority chunk serves fixed UI and Latin; other disjoint ranges are fetched
-only for displayed characters. OFL attribution stays in `public/fonts/OFL.txt`.
+small priority chunk (`wenkai-000.woff2`) serves fixed UI, dynamic date
+characters and Latin and is preloaded by `vite.config.ts`; other disjoint ranges
+are emitted as collapsed `unicode-range` spans and fetched only for displayed
+characters. Content hashes (`?v=<hash>`) are appended to the font stylesheet and
+chunk URLs so immutable CDN/browser caches pick up regenerated fonts cleanly.
+OFL attribution stays in `public/fonts/OFL.txt`.
 The original TTF is not shipped. Images use API URLs without inventing variants.
 
 ## Maintenance
