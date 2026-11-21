@@ -154,6 +154,7 @@ coverage thresholds and `playwright.config.ts` owns the E2E artifact directory.
 wallpaper-web/
 ├── .editorconfig             # Shared editor defaults
 ├── .gitattributes            # Line endings and binary font assets
+├── .github/pull_request_template.md # Pull request description template
 ├── .github/workflows/ci.yml  # Automated checks, tests and dependency audit
 ├── .github/workflows/release.yml # Tag-triggered release automation
 ├── README.md                 # Setup, development, verification and font tooling
