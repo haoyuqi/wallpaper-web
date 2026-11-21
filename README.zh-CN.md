@@ -67,13 +67,24 @@ npx playwright install chromium
 
 单元与组件测试通过 `vp test` 在 `happy-dom` 中运行；Playwright 驱动无头 Chromium 针对生产预览构建运行，API 与图片请求均已 mock，因此不需要后端或真实外部服务。
 
-覆盖率统计覆盖每个 `src/**/*.{ts,vue}` 模块，statements、branches、functions、lines 必须全部保持 100%。CI 还会检查格式、静态规则与类型，构建产物，并用 OSV-Scanner 运行依赖审计——任何未被 `osv-scanner.toml` 豁免的公告都会导致失败。
+覆盖率统计覆盖每个 `src/**/*.{ts,vue}` 模块，statements、branches、functions、lines 必须全部保持 100%。CI 检查格式、静态规则与类型，构建产物，使用 OSV-Scanner 审计依赖（任何未被 `osv-scanner.toml` 豁免的公告都会导致失败），并在 amd64 和 arm64 上构建、验证容器。
 
 Playwright 的 HTML 报告与失败附件输出到 `tests/e2e/.results/`。
 
 ## 部署
 
-生产产物是 `dist/`，一个静态单页应用，不包含开发用的 API 代理。请在构建时配置公开的 `VITE_API_BASE_URL`，或在静态主机前置同源 API 反向代理，并让主机把未知路径回退到 `index.html`，以保证客户端路由可用。
+生产产物是 `dist/`，一个静态单页应用，不包含开发用的 API 代理。如果自行托管静态文件，请在构建时配置公开的 `VITE_API_BASE_URL`，或添加同源 API 反向代理，并让未知路径回退到 `index.html`。
+
+[生产镜像](Dockerfile)包含静态文件与监听 8080 端口的 Nginx，负责前端路由回退，并把 `/api/` 转发到 `API_UPSTREAM` 指定的 API 源（默认 `http://wallpaper-api:8080`）。启动时修改这一环境变量，即可让**同一个镜像**连接不同 API，无需在服务器安装 Node.js 或重新构建；浏览器不会收到这个变量。请填写无路径、无结尾斜杠的 HTTP(S) 源地址，并保证容器能通过 Docker 网络访问。示例：
+
+```sh
+docker run --rm --name wallpaper-web --network wallpaper \
+  -p 8080:8080 \
+  -e API_UPSTREAM=http://wallpaper-api:8080 \
+  ghcr.io/haoyuqi/wallpaper-web:latest
+```
+
+`GET /healthz` 只检查静态服务；还应请求真实的 `GET /api/v1/wallpapers?date=YYYY-MM-DD` 检查 API 连通。API 端口宜只在 Docker 网络内开放，对外入口配置 TLS。可以用 `vX.Y.Z` 版本标签固定升级或回滚，`latest` 指向最新稳定版本。发布前要求质量检查和双架构容器检查通过；已发布版本标签不会被覆盖。GHCR 包首次创建后可能需要设置为公开，其他用户才能匿名拉取。前端与 API 的组合 Compose 由 Wallpaper API 仓库维护。
 
 ## 手动浏览器检查
 

@@ -23,6 +23,7 @@ required. There is no login, token storage, favorites or search in this version.
 | Visual tokens and responsive layout      | `src/styles/tokens.css`, `src/styles/main.css`                                                                                           | `tests/e2e/archive.spec.ts`                                       |
 | Original font conversion                 | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                                                                                    | full source/output cmap equality in `scripts/build-fonts.py`      |
 | Project tooling and quality gates        | `.editorconfig`, `.gitattributes`, `vite.config.ts`, `playwright.config.ts`, `.github/workflows/ci.yml`, `.github/workflows/release.yml` | `npm run check`, `npm run test:coverage`, `npm run test:e2e`      |
+| Container and runtime API proxy          | `Dockerfile`, `docker/default.conf.template`, `.dockerignore`                                                                            | `.github/scripts/smoke-container.sh`, dual-architecture CI job    |
 
 ## Data and state
 
@@ -72,6 +73,14 @@ no session state, token storage or authentication guards. Backend authentication
 and CORS settings are external deployment concerns; they are not defined or
 verified by this frontend repository.
 
+The production image compiles a same-origin browser bundle, serves static files
+with Nginx, and proxies `/api/` to the operator-provided `API_UPSTREAM` origin.
+This variable is substituted in the container at startup, never embedded in
+the browser bundle. The Nginx fallback serves `index.html` on SPA routes;
+`/healthz` checks only Nginx, not the API. The combined Compose configuration
+belongs to the Wallpaper API repository; this repo owns the reusable image,
+its configuration and the dual-architecture container checks.
+
 ## Interface languages
 
 Vue I18n owns interface translations. `src/i18n/index.ts` resolves the initial
@@ -112,8 +121,9 @@ coverage thresholds and `playwright.config.ts` owns the E2E artifact directory.
   [.github/workflows/release.yml](../.github/workflows/release.yml): it validates
   tag ancestry, runs [.github/workflows/ci.yml](../.github/workflows/ci.yml)
   on the tagged commit, generates bilingual release notes via
-  `.github/scripts/release-notes.py`, and publishes the GitHub release once all
-  checks pass. Generation starts after CI succeeds. Sources are the complete
+  `.github/scripts/release-notes.py`, publishes the dual-architecture image to
+  GHCR, and creates the GitHub release once the checks, image push and notes
+  succeed. Generation starts after CI succeeds. Sources are the complete
   titles and descriptions of merged PRs associated with commits in the actual
   tag range, plus full messages of unmatched commits, including merges. PRs
   are deduplicated; sources are neither compressed nor truncated. One model
