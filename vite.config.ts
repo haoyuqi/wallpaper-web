@@ -1,25 +1,76 @@
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { extname, join, resolve } from "node:path";
+import { gzipSync } from "node:zlib";
 import { defineConfig, loadEnv, type Plugin } from "vite-plus";
 import vue from "@vitejs/plugin-vue";
 
-function fileHash(path: string): string {
-  return createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 8);
+const FONT_CSS_LINK = '<link rel="stylesheet" href="/fonts/wenkai.css" />';
+const GZIP_EXTENSIONS = new Set([".css", ".html", ".js"]);
+const GZIP_MIN_BYTES = 1024;
+
+function fileHash(content: Buffer | string): string {
+  return createHash("sha256").update(content).digest("hex").slice(0, 8);
 }
 
-function fontAssetVersioning(root: string): Plugin {
+// Keep public/fonts/wenkai.css formatted for the repository while shipping the
+// smallest equivalent stylesheet from dist/.
+function minifyFontCss(css: string): string {
+  return css
+    .replace(/\s+/g, " ")
+    .replace(/\s*([{};:,])\s*/g, "$1")
+    .replace(/font-style:normal;font-weight:400;/g, "")
+    .trim();
+}
+
+// Precompress text assets once so Nginx can serve them with gzip_static and no
+// per-request CPU. Binary formats such as woff2 are already compressed.
+function writeGzipCopies(directory: string): void {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      writeGzipCopies(path);
+      continue;
+    }
+    if (!GZIP_EXTENSIONS.has(extname(entry.name))) continue;
+    const source = readFileSync(path);
+    if (source.byteLength < GZIP_MIN_BYTES) continue;
+    const compressed = gzipSync(source, { level: 9 });
+    if (compressed.byteLength < source.byteLength) {
+      writeFileSync(`${path}.gz`, compressed);
+    }
+  }
+}
+
+function fontAssetVersioning(root: string, isBuild: boolean): Plugin {
+  let outDir = resolve(root, "dist");
+  let fontCss: string | undefined;
+
   return {
     name: "font-asset-versioning",
+    configResolved(config) {
+      outDir = resolve(config.root, config.build.outDir);
+    },
     transformIndexHtml(html) {
-      const cssHash = fileHash(resolve(root, "public/fonts/wenkai.css"));
-      const primaryChunkHash = fileHash(resolve(root, "public/fonts/wenkai-000.woff2"));
+      if (!html.includes(FONT_CSS_LINK)) {
+        throw new Error(`index.html must contain ${FONT_CSS_LINK}`);
+      }
+      const sourceCss = readFileSync(resolve(root, "public/fonts/wenkai.css"), "utf8");
+      fontCss = isBuild ? minifyFontCss(sourceCss) : sourceCss;
+      const cssHash = fileHash(fontCss);
+      const primaryChunkHash = fileHash(
+        readFileSync(resolve(root, "public/fonts/wenkai-000.woff2")),
+      );
       const preload = `<link rel="preload" href="/fonts/wenkai-000.woff2?v=${primaryChunkHash}" as="font" type="font/woff2" crossorigin />`;
       const stylesheet = `<link rel="stylesheet" href="/fonts/wenkai.css?v=${cssHash}" />`;
-      return html.replace(
-        '<link rel="stylesheet" href="/fonts/wenkai.css" />',
-        `${preload}\n    ${stylesheet}`,
-      );
+      return html.replace(FONT_CSS_LINK, `${preload}\n    ${stylesheet}`);
+    },
+    closeBundle() {
+      if (!isBuild || fontCss === undefined) return;
+      // Vite copies public/ before writing the bundle; overwrite the formatted
+      // source with the version whose hash is referenced by dist/index.html.
+      writeFileSync(resolve(outDir, "fonts/wenkai.css"), fontCss);
+      writeGzipCopies(outDir);
     },
   };
 }
@@ -29,7 +80,7 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), "API_");
   const isBuild = command === "build";
   return {
-    plugins: [vue(), fontAssetVersioning(process.cwd())],
+    plugins: [vue(), fontAssetVersioning(process.cwd(), isBuild)],
     define: isBuild
       ? {
           __VUE_OPTIONS_API__: false,
@@ -39,6 +90,10 @@ export default defineConfig(({ command, mode }) => {
           __INTLIFY_PROD_DEVTOOLS__: false,
         }
       : undefined,
+    build: {
+      // The SPA has a single entry chunk, so the modulepreload polyfill is unused.
+      modulePreload: false,
+    },
     server: {
       host: "127.0.0.1",
       port: 5174,

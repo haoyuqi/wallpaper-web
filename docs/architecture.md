@@ -7,23 +7,23 @@ required. There is no login, token storage, favorites or search in this version.
 
 ## Find the implementation
 
-| Feature                                  | Owning source                                                                                                                            | Automated tests                                                   |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Startup and routing                      | `src/main.ts`, `src/router.ts`, `src/App.vue`                                                                                            | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Interface languages and preference       | `src/i18n/`, `src/components/LanguageSelect.vue`, `src/App.vue`                                                                          | `tests/unit/i18n.test.ts`, `tests/e2e/archive.spec.ts`            |
-| Archive, date URL and six-card batches   | `src/components/ArchivePage.vue`, `src/composables/useArchive.ts`                                                                        | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
-| Request lifecycle and retry cancellation | `src/composables/useArchive.ts`, `src/services/wallpapers.ts`                                                                            | `tests/unit/composables.test.ts`, `tests/unit/services.test.ts`   |
-| API boundary and nullable fields         | `src/services/wallpapers.ts`                                                                                                             | `tests/unit/services.test.ts`                                     |
-| Calendar-only dates                      | `src/services/dates.ts`                                                                                                                  | `tests/unit/services.test.ts`                                     |
-| Hero controls and pause reasons          | `src/components/CoverCarousel.vue`, `src/composables/useCarousel.ts`                                                                     | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`     |
-| Card and image feedback                  | `src/components/WallpaperCard.vue`, `src/components/WallpaperImage.vue`                                                                  | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Single-object modal                      | `src/components/WallpaperViewer.vue`                                                                                                     | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`      |
-| Download streaming limits                | `src/services/download.ts`                                                                                                               | `tests/unit/services.test.ts`, `tests/e2e/archive.spec.ts`        |
-| Request/empty/rate-limit presentation    | `src/components/ArchiveStatus.vue`, `src/composables/useRetryAfter.ts`                                                                   | `tests/unit/components.test.ts`, `tests/unit/composables.test.ts` |
-| Visual tokens and responsive layout      | `src/styles/tokens.css`, `src/styles/main.css`                                                                                           | `tests/e2e/archive.spec.ts`                                       |
-| Original font conversion                 | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                                                                                    | full source/output cmap equality in `scripts/build-fonts.py`      |
-| Project tooling and quality gates        | `.editorconfig`, `.gitattributes`, `vite.config.ts`, `playwright.config.ts`, `.github/workflows/ci.yml`, `.github/workflows/release.yml` | `npm run check`, `npm run test:coverage`, `npm run test:e2e`      |
-| Container and runtime API proxy          | `Dockerfile`, `docker/default.conf.template`, `.dockerignore`                                                                            | `.github/scripts/smoke-container.sh`, dual-architecture CI job    |
+| Feature                                  | Owning source                                                                                                                            | Automated tests                                                                          |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Startup and routing                      | `src/main.ts`, `src/router.ts`, `src/App.vue`                                                                                            | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`                             |
+| Interface languages and preference       | `src/i18n/`, `src/components/LanguageSelect.vue`, `src/App.vue`                                                                          | `tests/unit/i18n.test.ts`, `tests/e2e/archive.spec.ts`                                   |
+| Archive, date URL and six-card batches   | `src/components/ArchivePage.vue`, `src/composables/useArchive.ts`                                                                        | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`                            |
+| Request lifecycle and retry cancellation | `src/composables/useArchive.ts`, `src/services/wallpapers.ts`                                                                            | `tests/unit/composables.test.ts`, `tests/unit/services.test.ts`                          |
+| API boundary and nullable fields         | `src/services/wallpapers.ts`                                                                                                             | `tests/unit/services.test.ts`                                                            |
+| Calendar-only dates                      | `src/services/dates.ts`                                                                                                                  | `tests/unit/services.test.ts`                                                            |
+| Hero controls and pause reasons          | `src/components/CoverCarousel.vue`, `src/composables/useCarousel.ts`                                                                     | `tests/unit/composables.test.ts`, `tests/e2e/archive.spec.ts`                            |
+| Card and image feedback                  | `src/components/WallpaperCard.vue`, `src/components/WallpaperImage.vue`                                                                  | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`                             |
+| Single-object modal                      | `src/components/WallpaperViewer.vue`                                                                                                     | `tests/unit/components.test.ts`, `tests/e2e/archive.spec.ts`                             |
+| Download streaming limits                | `src/services/download.ts`                                                                                                               | `tests/unit/services.test.ts`, `tests/e2e/archive.spec.ts`                               |
+| Request/empty/rate-limit presentation    | `src/components/ArchiveStatus.vue`, `src/composables/useRetryAfter.ts`                                                                   | `tests/unit/components.test.ts`, `tests/unit/composables.test.ts`                        |
+| Visual tokens and responsive layout      | `src/styles/tokens.css`, `src/styles/main.css`                                                                                           | `tests/e2e/archive.spec.ts`                                                              |
+| Original font conversion                 | `scripts/build-fonts.py`, `public/fonts/coverage.txt`                                                                                    | `tests/unit/fonts.test.ts`, full source/output cmap equality in `scripts/build-fonts.py` |
+| Project tooling and quality gates        | `.editorconfig`, `.gitattributes`, `vite.config.ts`, `playwright.config.ts`, `.github/workflows/ci.yml`, `.github/workflows/release.yml` | `npm run check`, `npm run test:coverage`, `npm run test:e2e`                             |
+| Container and runtime API proxy          | `Dockerfile`, `docker/default.conf.template`, `.dockerignore`                                                                            | `.github/scripts/smoke-container.sh`, dual-architecture CI job                           |
 
 ## Data and state
 
@@ -78,6 +78,8 @@ verified by this frontend repository.
 
 The production image compiles a same-origin browser bundle, serves static files
 with Nginx, and proxies `/api/` to the operator-provided `API_UPSTREAM` origin.
+Nginx enables `gzip_static` and serves the build-generated `.gz` copies of
+JavaScript, CSS and HTML, while API responses stay uncompressed.
 This variable is substituted in the container at startup, never embedded in
 the browser bundle. The Nginx fallback serves `index.html` on SPA routes;
 `/healthz` checks only Nginx, not the API. The combined Compose configuration
@@ -101,10 +103,13 @@ Vue components. The current interface uses a cinema layout, warm linen palette
 and LXGW WenKai font. This repository contains the runtime UI and its assets.
 Font chunks preserve the original v1.530 outlines and full Unicode cmap. A
 small priority chunk (`wenkai-000.woff2`) serves fixed UI, dynamic date
-characters and Latin and is preloaded by `vite.config.ts`; other disjoint ranges
-are emitted as collapsed `unicode-range` spans and fetched only for displayed
-characters. Content hashes (`?v=<hash>`) are appended to the font stylesheet and
-chunk URLs so immutable CDN/browser caches pick up regenerated fonts cleanly.
+characters and basic Latin/Latin-1 and is preloaded by `vite.config.ts`; other
+disjoint ranges are emitted as collapsed `unicode-range` spans and fetched only
+for displayed characters. Content hashes (`?v=<hash>`) are appended to the font
+stylesheet and chunk URLs so immutable CDN/browser caches pick up regenerated
+fonts cleanly. Production builds minify the copied `dist/fonts/wenkai.css` and
+hash that minified content, then emit `.gz` siblings for text assets so the
+server can send precompressed bytes without per-request work.
 OFL attribution stays in `public/fonts/OFL.txt`.
 The original TTF is not shipped. Images use API URLs without inventing variants.
 
