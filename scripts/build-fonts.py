@@ -34,8 +34,10 @@ source = TTFont(args.source)
 codepoints = sorted(source.getBestCmap())
 version = source['name'].getDebugName(5)
 source.close()
-ui_text = ''.join(path.read_text() for path in Path('src').rglob('*') if path.suffix in {'.vue', '.ts', '.css'})
-priority = set(range(0x250)) | {ord(char) for char in ui_text + DYNAMIC_UI_CHARS}
+ui_text = Path('index.html').read_text() + ''.join(
+    path.read_text() for path in Path('src').rglob('*') if path.suffix in {'.vue', '.ts', '.css'}
+)
+priority = set(range(0x100)) | {ord(char) for char in ui_text + DYNAMIC_UI_CHARS}
 first = [point for point in codepoints if point in priority]
 rest = [point for point in codepoints if point not in priority]
 chunks = [first] + [rest[i:i + 512] for i in range(0, len(rest), 512)]
