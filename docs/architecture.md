@@ -78,8 +78,9 @@ verified by this frontend repository.
 
 The production image compiles a same-origin browser bundle, serves static files
 with Nginx, and proxies `/api/` to the operator-provided `API_UPSTREAM` origin.
-Nginx enables `gzip_static` and serves the build-generated `.gz` copies of
-JavaScript, CSS and HTML, while API responses stay uncompressed.
+Nginx enables `gzip_static` and serves the build-generated `.gz` copies of text
+assets of at least 1 KiB (compiled JavaScript, CSS and any larger HTML), while
+API responses stay uncompressed.
 This variable is substituted in the container at startup, never embedded in
 the browser bundle. The Nginx fallback serves `index.html` on SPA routes;
 `/healthz` checks only Nginx, not the API. The combined Compose configuration

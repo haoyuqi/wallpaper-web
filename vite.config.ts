@@ -14,12 +14,11 @@ function fileHash(content: Buffer | string): string {
 }
 
 // Keep public/fonts/wenkai.css formatted for the repository while shipping the
-// smallest equivalent stylesheet from dist/.
+// smallest equivalent stylesheet from dist/ without touching quoted strings.
 function minifyFontCss(css: string): string {
   return css
-    .replace(/\s+/g, " ")
-    .replace(/\s*([{};:,])\s*/g, "$1")
-    .replace(/font-style:normal;font-weight:400;/g, "")
+    .replace(/"[^"]*"|\s+/g, (token) => (token.startsWith('"') ? token : " "))
+    .replace(/"[^"]*"|\s*([{};:,])\s*/g, (token, punct?: string) => (punct ? punct : token))
     .trim();
 }
 
@@ -66,10 +65,12 @@ function fontAssetVersioning(root: string, isBuild: boolean): Plugin {
       return html.replace(FONT_CSS_LINK, `${preload}\n    ${stylesheet}`);
     },
     closeBundle() {
-      if (!isBuild || fontCss === undefined) return;
-      // Vite copies public/ before writing the bundle; overwrite the formatted
-      // source with the version whose hash is referenced by dist/index.html.
-      writeFileSync(resolve(outDir, "fonts/wenkai.css"), fontCss);
+      if (!isBuild) return;
+      if (fontCss !== undefined) {
+        // Vite copies public/ before writing the bundle; overwrite the formatted
+        // source with the version whose hash is referenced by dist/index.html.
+        writeFileSync(resolve(outDir, "fonts/wenkai.css"), fontCss);
+      }
       writeGzipCopies(outDir);
     },
   };

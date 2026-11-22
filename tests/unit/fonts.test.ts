@@ -23,7 +23,7 @@ const stylesheet = readFileSync(resolve(fontsDir, "wenkai.css"), "utf8");
 
 // Typography helpers and Intl output add glyphs that do not appear verbatim in
 // a dictionary string; scripts/build-fonts.py keeps them in the priority chunk.
-const DYNAMIC_CHARS = "—–·…©，。：（）";
+const DYNAMIC_CHARS = "年月日—–·…©，。：（）";
 const INTERFACE_EXTENSIONS = new Set([".css", ".ts", ".vue"]);
 const PRIMARY_CHUNK = "wenkai-000.woff2";
 
@@ -97,8 +97,9 @@ function interfaceText(): string[] {
       }
     }
   }
-  // Scan every interface source file too, so copy added before it reaches a
-  // dictionary cannot silently ship without a regenerated font.
+  // Scan index.html and every interface source file too, so copy added before
+  // it reaches a dictionary cannot silently ship without a regenerated font.
+  text.push(readFileSync(resolve(projectRoot, "index.html"), "utf8"));
   for (const file of sourceFiles(resolve(projectRoot, "src"))) {
     text.push(readFileSync(file, "utf8"));
   }
